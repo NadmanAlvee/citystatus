@@ -9,6 +9,13 @@ class UserController
 	{
 		$this->loadView('authentications/signup');
 	}
+
+
+	public function forgetpassword()
+	{
+		$this->loadView('authentications/forgotpassword');
+	}
+	
   private function loadView($view, $data = [])
 	{
 		extract($data);

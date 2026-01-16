@@ -12,7 +12,11 @@
 		$userController->signup();
 	} elseif ($action === 'login') {
 		$userController->login();
-	} else {
+	}
+	
+	elseif ($action === 'forgetpassword') {
+		$userController->forgetpassword();
+	}else {
 		http_response_code(404);
 		include 'views/errors/404.php';
 	}
