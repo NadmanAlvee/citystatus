@@ -8,7 +8,7 @@
   // user router
   require_once 'controllers/UserController.php';
   $userController = new UserController();
-  if ($action === '') {
+  if ($action === 'index') {
     $userController->home();
   } elseif ($action === 'signup') {
 		$userController->signup();
