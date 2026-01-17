@@ -50,12 +50,12 @@
 
             <div class="actions">
                 <label class="remember"><input type="checkbox" name="remember"> Remember me</label>
-                <a class="forgot" href="ForgotPassword.php">Forgot password?</a>
+                <a class="forgot" href="forgotpassword">Forgot password?</a>
             </div>
 
             <button type="submit" name="login_submit">Log In</button>
 
-            <div class="meta">Don't have an account? <a href="Signup.php">Create one</a></div>
+            <div class="meta">Don't have an account? <a href="signup">Create one</a></div>
         </form>
     </div>
 </body>

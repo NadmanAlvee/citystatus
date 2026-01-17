@@ -1,19 +1,23 @@
 <?php
 class UserController
 {
+  public function home()
+  {
+    $this->loadView('Homepage');
+  }
   public function login()
 	{
-		$this->loadView('authentications/login');
+		$this->loadView('authentications/Login');
 	}
   public function signup()
 	{
-		$this->loadView('authentications/signup');
+		$this->loadView('authentications/Signup');
 	}
 
 
-	public function forgetpassword()
+	public function forgotpassword()
 	{
-		$this->loadView('authentications/forgotpassword');
+		$this->loadView('authentications/ForgotPassword');
 	}
 	
   private function loadView($view, $data = [])

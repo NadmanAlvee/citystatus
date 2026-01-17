@@ -8,14 +8,16 @@
   // user router
   require_once 'controllers/UserController.php';
   $userController = new UserController();
-  if ($action === 'signup') {
+  if ($action === '') {
+    $userController->home();
+  } elseif ($action === 'signup') {
 		$userController->signup();
 	} elseif ($action === 'login') {
 		$userController->login();
 	}
 	
-	elseif ($action === 'forgetpassword') {
-		$userController->forgetpassword();
+	elseif ($action === 'forgotpassword') {
+		$userController->forgotpassword();
 	}else {
 		http_response_code(404);
 		include 'views/errors/404.php';
