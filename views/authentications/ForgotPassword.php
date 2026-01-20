@@ -191,3 +191,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </style>
 </head>
 <body>
+
+<div class="auth-card" role="main">
+    <h1>Forgot password?</h1>
+    <p class="lead">No worries! Enter your email below and we'll send you reset instructions.</p>
+
+    <?php if ($msg): ?>
+        <div class="msg <?php echo $msg_type; ?>">
+            <?php echo htmlspecialchars($msg); ?>
+        </div>
+    <?php endif; ?>
+
+    <form method="POST" action="">
+        <div class="form-group">
+            <label for="email">Email Address</label>
+            <input 
+                id="email" 
+                class="input" 
+                type="email" 
+                name="email" 
+                placeholder="name@company.com" 
+                required 
+                autofocus
+            >
+        </div>
+        
+        <button class="btn" type="submit">Send Reset Link</button>
+    </form>
+
+    <div class="footer-links">
+        <a class="link" href="<?php echo $baseUrl; ?>/login">← Back to login</a>
+    </div>
+</div>
+
+</body>
+</html>
