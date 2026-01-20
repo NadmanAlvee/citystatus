@@ -1,33 +1,7 @@
--- SQL script to set up the citystatus database and users table
---CREATE DATABASE IF NOT EXISTS citystatus;
---USE citystatus;
-
---CREATE TABLE IF NOT EXISTS users (
-    --id INT AUTO_INCREMENT PRIMARY KEY,
-    --name VARCHAR(100) NOT NULL,
-    -- VARCHAR(100) NOT NULL,
-    -- VARCHAR(20),
-    --created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
---);
-
---INSERT INTO users (name, email, phone) VALUES
---('Alice Smith', 'alice@example.com', '123-456-7890'),
---('Bob Johnson', 'bob@example.com', '234-567-8901'),
---('Charlie Lee', 'charlie@example.com', '345-678-9012');
-
-
-
---ours
-
-
-
-
-
---part1
 CREATE DATABASE IF NOT EXISTS citystatus_db;
 
+-- Use the database citystatus_db
 
---part 2
 CREATE TABLE users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -44,13 +18,10 @@ CREATE TABLE users (
     user_type ENUM('admin', 'member', 'guest') DEFAULT 'member'
 );
 
-
---part 3
 ALTER TABLE users
 ADD COLUMN security_q VARCHAR(100),
 ADD COLUMN security_a VARCHAR(100);
 
---part 4 ADMIN
 INSERT INTO users 
 (name, email, phone, password, sex, DOB, district, user_type, security_q, security_a)
 VALUES 
