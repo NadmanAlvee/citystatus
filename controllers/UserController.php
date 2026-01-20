@@ -1,27 +1,26 @@
 <?php
 class UserController
 {
-  public function home()
-  {
+  public function home(){
     $this->loadView('Homepage');
   }
-  public function login()
-	{
+  public function login(){
 		$this->loadView('authentications/Login');
 	}
-  public function signup()
-	{
+  public function signup(){
 		$this->loadView('authentications/Signup');
 	}
-
-
-	public function forgotpassword()
-	{
+	public function forgotpassword(){
 		$this->loadView('authentications/ForgotPassword');
 	}
+	public function adminDashboard(){
+		$this->loadView('Dashboards/AdminDashboard');
+	}
+	public function userDashboard(){
+		$this->loadView('Dashboards/UserDashboard');
+	}
 	
-  private function loadView($view, $data = [])
-	{
+  private function loadView($view, $data = []){
 		extract($data);
 
 		$viewFile = "views/{$view}.php";

@@ -12,7 +12,7 @@
         h2{margin:0 0 18px;font-weight:600;color:#222;text-align:center}
         .input-group{margin-bottom:12px}
         label{display:block;margin-bottom:6px;font-size:13px;color:#444}
-        input[type="email"],input[type="password"],input[type="text"]{width:100%;padding:10px 12px;border:1px solid #e6e9ee;border-radius:8px;font-size:14px;background:#fff}
+        input[type="email"],input[type="password"],input[type="text"]{width:100%;padding:10px 12px;border:1px solid #979797;border-radius:8px;font-size:14px;background:#fff}
         .actions{display:flex;justify-content:space-between;align-items:center;margin:10px 0 16px}
         .remember{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
         .forgot{font-size:13px;color:var(--primary);text-decoration:none}

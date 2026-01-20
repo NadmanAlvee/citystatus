@@ -14,11 +14,13 @@
 		$userController->signup();
 	} elseif ($action === 'login') {
 		$userController->login();
-	}
-	
-	elseif ($action === 'forgotpassword') {
+	} elseif ($action === 'forgotpassword') {
 		$userController->forgotpassword();
-	}else {
+	} elseif ($action === 'admin-dashboard') {
+		$userController->adminDashboard();
+	} elseif ($action === 'user-dashboard') {
+		$userController->userDashboard();
+	} else {
 		http_response_code(404);
 		include 'views/errors/404.php';
 	}

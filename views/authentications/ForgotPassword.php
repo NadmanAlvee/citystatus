@@ -6,7 +6,7 @@ session_start();
 $dsn = 'mysql:host=localhost;dbname=your_db;charset=utf8mb4';
 $dbUser = 'db_user';
 $dbPass = 'db_pass';
-$baseUrl = 'http://localhost:81/citystatus'; // updated to match dev preview URL
+$baseUrl = 'http://localhost:80/citystatus';
 
 $pdo = null;
 $db_error = false;
@@ -74,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		.auth-card{background:#fff;padding:28px;border-radius:8px;box-shadow:0 6px 18px rgba(20,30,60,0.08);width:360px;max-width:90%}
 		.auth-card h1{margin:0 0 8px;font-size:20px}
 		.auth-card p.lead{margin:0 0 16px;color:#6b7280}
-		.input{width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:6px;margin-top:8px}
+		.input{width:100%;padding:10px 12px;border:1px solid #979797;border-radius:6px;margin-top:8px}
 		.btn{display:inline-block;width:100%;padding:10px 12px;background:#2563eb;color:#fff;border-radius:6px;border:none;cursor:pointer;margin-top:12px}
 		.msg{padding:10px;border-radius:6px;margin-bottom:12px}
 		.msg.success{background:#ecfdf5;color:#064e3b}

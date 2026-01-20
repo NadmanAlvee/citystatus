@@ -20,7 +20,7 @@
         select {
             width:100%;
             padding:10px 12px;
-            border:1px solid #e6e9ee;
+            border:1px solid #979797;
             border-radius:8px;
             font-size:14px;
             background:#fff;
@@ -93,8 +93,8 @@
             </div>
 
             <div class="input-group">
-                <label for="password_ques">Security Question</label>
-                <select id="password_ques" name="password_ques" required>
+                <label for="sec_ques">Security Question</label>
+                <select id="sec_ques" name="sec_ques_select" required>
                     <option value="">--Select a Question--</option>
                     <option value="pet">What was the name of your first pet?</option>
                     <option value="city">In what city were you born?</option>
@@ -102,6 +102,11 @@
                     <option value="car">What was your first car?</option>
                     <option value="mother">What is your mother's maiden name?</option>
                 </select>
+            </div>
+
+            <div class="input-group" id="sec_ans_group" style="display:none;">
+                <label for="sec_ans">Your Answer</label>
+                <input type="text" id="sec_ans" name="sec_ques" required>
             </div>
 
             <div class="input-group">
@@ -119,5 +124,23 @@
             <div class="meta">Already have an account? <a href="login">Sign In</a></div>
         </form>
     </div>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          const questionSelect = document.getElementById('sec_ques');
+          const answerGroup = document.getElementById('sec_ans_group');
+          const answerInput = document.getElementById('sec_ans');
+
+          questionSelect.addEventListener('change', function() {
+              if (this.value !== "") {
+                  answerGroup.style.display = 'block';
+                  answerInput.disabled = false;
+              } else {
+                  answerGroup.style.display = 'none';
+                  answerInput.disabled = true;
+                  answerInput.value = "";
+              }
+          });
+      });
+    </script>
 </body>
 </html>
