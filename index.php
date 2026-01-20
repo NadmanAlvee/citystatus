@@ -22,6 +22,6 @@
 		$userController->userDashboard();
 	} else {
 		http_response_code(404);
-		include 'views/errors/404.php';
+		include 'views/errors/NotFoundPage.php';
 	}
 ?>
