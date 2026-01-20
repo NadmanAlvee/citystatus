@@ -5,40 +5,169 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>User Dashboard</title>
     <style>
-        :root{--bg:#f4f7fb;--card:#ffffff;--primary:#0078d4;--muted:#666;--border:#979797;--text:#222}
-        *{box-sizing:border-box}
-        
+        :root {
+            --bg: #f4f7fb;
+            --card: #ffffff;
+            --primary: #0078d4;
+            --muted: #666;
+            --border: #979797;
+            --text: #222;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         /* Navigation Sidebar */
-        nav {width: 250px; background: var(--card); border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; gap: 10px;}
-        nav h1 { font-size: 1.2rem; margin-bottom: 20px; color: var(--primary); text-align: center; }
-        .nav-btn { padding: 12px; border: none; background: none; text-align: left; font-size: 15px; cursor: pointer; border-radius: 8px; color: var(--muted); transition: 0.2s; }
-        .nav-btn:hover { background: #f0f4f8; color: var(--primary); }
-        .nav-btn.active { background: var(--primary); color: #fff; }
+        nav {
+            width: 250px;
+            background: var(--card);
+            border-right: 1px solid var(--border);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        nav h1 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+            text-align: center;
+        }
+
+        .nav-btn {
+            padding: 12px;
+            border: none;
+            background: none;
+            text-align: left;
+            font-size: 15px;
+            cursor: pointer;
+            border-radius: 8px;
+            color: var(--muted);
+            transition: 0.2s;
+        }
+
+        .nav-btn:hover {
+            background: #f0f4f8;
+            color: var(--primary);
+        }
+
+        .nav-btn.active {
+            background: var(--primary);
+            color: #fff;
+        }
 
         /* Main Content Area */
-        main { flex: 1; padding: 40px; overflow-y: auto; max-height: 100vh; }
-        .section { display: none; max-width: 800px; margin: 0 auto; }
-        .section.active { display: block; }
+        main {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+
+        .section {
+            display: none;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .section.active {
+            display: block;
+        }
 
         /* Settings Card */
-        .card { background: var(--card); padding: 24px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        h2 { margin-top: 0; font-weight: 600; }
-        .input-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 6px; font-size: 13px; color: #444; }
-        input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; }
-        button.save-btn { background: var(--primary); color: #white; border: 0; padding: 10px 20px; border-radius: 8px; color: white; cursor: pointer; }
+        .card {
+            background: var(--card);
+            padding: 24px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        h2 {
+            margin-top: 0;
+            font-weight: 600;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: #444;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        button.save-btn {
+            background: var(--primary);
+            border: 0;
+            padding: 10px 20px;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+        }
 
         /* Posts Section */
-        .post-list { display: flex; flex-direction: column; gap: 20px; }
-        .post-card { background: var(--card); padding: 20px; border-radius: 10px; border: 1px solid var(--border); }
-        .post-card h3 { margin: 0 0 10px; font-size: 18px; color: var(--primary); }
-        .post-card p { margin: 0 0 15px; color: #444; line-height: 1.5; }
-        .post-meta { display: flex; gap: 20px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--border); padding-top: 12px; }
-        .meta-item { display: flex; align-items: center; gap: 5px; }
+        .post-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .post-card {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .post-card h3 {
+            margin: 0 0 10px;
+            font-size: 18px;
+            color: var(--primary);
+        }
+
+        .post-card p {
+            margin: 0 0 15px;
+            color: #444;
+            line-height: 1.5;
+        }
+
+        .post-meta {
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            color: var(--muted);
+            border-top: 1px solid var(--border);
+            padding-top: 12px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
 
         @media (max-width: 768px) {
-            body { flex-direction: column; }
-            nav { width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
+            body {
+                flex-direction: column;
+            }
+
+            nav {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
         }
     </style>
 </head>
