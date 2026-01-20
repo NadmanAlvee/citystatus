@@ -7,7 +7,6 @@
     <style>
         :root{--bg:#f4f7fb;--card:#ffffff;--primary:#0078d4;--muted:#666;--border:#979797;--text:#222}
         *{box-sizing:border-box}
-        body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh}
         
         /* Navigation Sidebar */
         nav {width: 250px; background: var(--card); border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; gap: 10px;}
@@ -44,7 +43,9 @@
     </style>
 </head>
 <body>
-
+    <!-- header -->
+    <?php include 'views/header.php'; ?>
+    <section style="margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text);display: flex;">
     <nav>
         <h1>Dashboard</h1>
         <button class="nav-btn active" onclick="showSection('settings', this)">User Settings</button>
@@ -119,7 +120,7 @@
             </div>
         </div>
     </main>
-
+    </section>
     <script>
         function showSection(sectionId, btn) {
             // Hide all sections
