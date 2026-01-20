@@ -130,7 +130,7 @@
     <div class="card">
         <h2>Create an Account</h2>
 
-        <form action="api/users/signup.php" method="POST">
+        <form action="/api/user/signup" method="POST">
             <div class="input-group">
                 <label for="name">Full Name</label>
                 <input type="text" id="name" name="name" required>

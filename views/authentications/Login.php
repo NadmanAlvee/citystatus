@@ -1,7 +1,7 @@
 <?php
 // handle POST login using model->checkLogin()
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    require_once __DIR__ . '/../../model/users.php';
+    require_once __DIR__ . '/../../models/users.php';
     $email = trim($_POST['email'] ?? '');
     $password = trim($_POST['password'] ?? '');
 
@@ -149,15 +149,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="card">
         <h2>Sign In</h2>
 
-        <?php if (!empty($authMessage)): ?>
-            <div class="error"><?php echo htmlspecialchars($authMessage); ?></div>
-        <?php endif; ?>
-
         <?php if(!empty($_GET['error'] ?? '')): ?>
             <div class="error"><?php echo htmlspecialchars($_GET['error']); ?></div>
         <?php endif; ?>
 
-        <form action="" method="POST">
+        <form action="api/user/login" method="POST" enctype="multipart/form-data">
             <div class="input-group">
                 <label for="email">Email address</label>
                 <input type="email" id="email" name="email" required autocomplete="email">
