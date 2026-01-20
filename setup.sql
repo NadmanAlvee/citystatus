@@ -18,6 +18,16 @@
 
 
 --ours
+
+
+
+
+
+--part1
+CREATE DATABASE IF NOT EXISTS citystatus_db;
+
+
+--part 2
 CREATE TABLE users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -34,4 +44,43 @@ CREATE TABLE users (
     user_type ENUM('admin', 'member', 'guest') DEFAULT 'member'
 );
 
+
+--part 3
+ALTER TABLE users
+ADD COLUMN security_q VARCHAR(100),
+ADD COLUMN security_a VARCHAR(100);
+
+--part 4 ADMIN
+INSERT INTO users 
+(name, email, phone, password, sex, DOB, district, user_type, security_q, security_a)
+VALUES 
+(
+    'John',
+    'john@gmail.com',
+    '01333333333',
+    '123456',
+    'Male',
+    '2001-08-12',
+    'Dhaka',
+    'admin',
+    'What was the name of your first pet?',
+    'tom'
+);
+
+
+--MEMBER
+INSERT INTO users 
+(name, email, phone, password, sex, DOB, district, security_q, security_a)
+VALUES 
+(
+    'Doe',
+    'doe@gmail.com',
+    '01333333334',
+    '123456',
+    'Male',
+    '2001-08-12',
+    'Dhaka',
+    'In what city were you born?',
+    'Dhaka'
+);
 
