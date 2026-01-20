@@ -1,108 +1,228 @@
 <?php
-// Minimal forgot-password implementation. Update DB credentials & mail settings.
+/**
+ * Forgot Password Handler - CityStatus
+ * * Instructions: 
+ * 1. Update $dsn, $dbUser, and $dbPass with your credentials.
+ * 2. Ensure your 'users' table has 'reset_token' (VARCHAR) and 'reset_expires' (DATETIME).
+ */
 
 session_start();
 
-$dsn = 'mysql:host=localhost;dbname=your_db;charset=utf8mb4';
-$dbUser = 'db_user';
-$dbPass = 'db_pass';
-$baseUrl = 'http://localhost:80/citystatus';
+// --- Configuration ---
+$dsn      = 'mysql:host=localhost;dbname=your_db;charset=utf8mb4';
+$dbUser   = 'db_user';
+$dbPass   = 'db_pass';
+$baseUrl  = 'http://localhost:80/citystatus';
 
-$pdo = null;
-$db_error = false;
+// --- Initialization ---
+$pdo      = null;
+$msg      = '';
+$msg_type = '';
 
 try {
     $pdo = new PDO($dsn, $dbUser, $dbPass, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::ATTR_EMULATE_PREPARES   => false,
     ]);
 } catch (Exception $e) {
-    // Do not exit on failure — enable preview mode without DB.
+    // Silently fail to "Preview Mode" for safety
     $pdo = null;
-    $db_error = true;
-    // In production, log $e->getMessage()
 }
 
+// --- Logic ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = filter_var($_POST['email'] ?? '', FILTER_VALIDATE_EMAIL);
+
     if (!$email) {
-        $msg = 'Please enter a valid email.';
+        $msg      = 'Please enter a valid email address.';
         $msg_type = 'error';
     } else {
         if ($pdo === null) {
-            // Preview mode: do not attempt DB or mail, just show success message so UI can be tested.
-            $msg = 'Preview mode: a password reset link would be sent if the system were connected to a database.';
+            $msg      = 'System in Preview Mode: Reset link generated but not sent.';
             $msg_type = 'success';
         } else {
-            // Find user (do not reveal existence)
-            $stmt = $pdo->prepare('SELECT id FROM users WHERE email = :email LIMIT 1');
-            $stmt->execute([':email' => $email]);
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            // Check if user exists
+            $stmt = $pdo->prepare('SELECT id FROM users WHERE email = ? LIMIT 1');
+            $stmt->execute([$email]);
+            $user = $stmt->fetch();
 
             if ($user) {
-                $token = bin2hex(random_bytes(24));
-                $expires = date('Y-m-d H:i:s', time() + 3600); // 1 hour expiry
+                $token   = bin2hex(random_bytes(32));
+                $expires = date('Y-m-d H:i:s', time() + 3600);
 
-                $up = $pdo->prepare('UPDATE users SET reset_token = :token, reset_expires = :expires WHERE id = :id');
-                $up->execute([':token' => $token, ':expires' => $expires, ':id' => $user['id']]);
+                $update = $pdo->prepare('UPDATE users SET reset_token = ?, reset_expires = ? WHERE id = ?');
+                $update->execute([$token, $expires, $user['id']]);
 
-                $resetLink = $baseUrl . '/reset_password.php?token=' . urlencode($token);
+                $resetLink = $baseUrl . '/reset_password.php?token=' . $token;
+                
+                // Email components
+                $subject = 'Password Reset Request';
+                $headers = "From: no-reply@example.com\r\n" .
+                           "Reply-To: no-reply@example.com\r\n" .
+                           "Content-Type: text/plain; charset=UTF-8";
+                $body    = "Hello,\n\nTo reset your password, please click the link below:\n" . 
+                           $resetLink . "\n\nThis link will expire in 1 hour.";
 
-                $subject = 'Password reset';
-                $message = "If you requested a password reset, click the link:\n\n{$resetLink}\n\nThis link expires in 1 hour.";
-                $headers = "From: no-reply@example.com\r\n";
-
-                // Use mail() or PHPMailer. Replace with real SMTP in production.
-                @mail($email, $subject, $message, $headers);
+                @mail($email, $subject, $body, $headers);
             }
 
-            $msg = 'If that email exists in our system, a password reset link has been sent.';
+            // Always show the same message to prevent "User Enumeration"
+            $msg      = 'If that email is in our system, you will receive a reset link shortly.';
             $msg_type = 'success';
         }
     }
 }
 ?>
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-	<meta charset="utf-8">
-	<title>Forgot Password — CityStatus</title>
-	<link rel="stylesheet" href="<?php echo $baseUrl; ?>/assets/css/style.css"> <!-- adjust path if needed -->
-	<meta name="viewport" content="width=device-width,initial-scale=1">
-	<style>
-		/* minimal fallback styling so preview looks like login/signup */
-		body{font-family:Arial,Helvetica,sans-serif;background:#f5f7fb;margin:0;padding:0;display:flex;align-items:center;justify-content:center;height:100vh}
-		.auth-card{background:#fff;padding:28px;border-radius:8px;box-shadow:0 6px 18px rgba(20,30,60,0.08);width:360px;max-width:90%}
-		.auth-card h1{margin:0 0 8px;font-size:20px}
-		.auth-card p.lead{margin:0 0 16px;color:#6b7280}
-		.input{width:100%;padding:10px 12px;border:1px solid #979797;border-radius:6px;margin-top:8px}
-		.btn{display:inline-block;width:100%;padding:10px 12px;background:#2563eb;color:#fff;border-radius:6px;border:none;cursor:pointer;margin-top:12px}
-		.msg{padding:10px;border-radius:6px;margin-bottom:12px}
-		.msg.success{background:#ecfdf5;color:#064e3b}
-		.msg.error{background:#fff1f2;color:#7f1d1d}
-		.small{font-size:13px;color:#6b7280;margin-top:12px;text-align:center}
-		.link{color:#2563eb;text-decoration:none}
-	</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forgot Password — CityStatus</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --error-bg: #fef2f2;
+            --error-text: #991b1b;
+            --success-bg: #f0fdf4;
+            --success-text: #166534;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .auth-card {
+            background: #ffffff;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .auth-card h1 {
+            margin: 0 0 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+        }
+
+        .lead {
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .msg {
+            padding: 0.875rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            border: 1px solid transparent;
+        }
+
+        .msg.success { background: var(--success-bg); color: var(--success-text); border-color: #dcfce7; }
+        .msg.error { background: var(--error-bg); color: var(--error-text); border-color: #fee2e2; }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1.25rem;
+            transition: background 0.2s;
+        }
+
+        .btn:hover { background: var(--primary-hover); }
+
+        .footer-links {
+            margin-top: 1.5rem;
+            text-align: center;
+            font-size: 0.875rem;
+        }
+
+        .link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .link:hover { text-decoration: underline; }
+    </style>
 </head>
 <body>
-	<div class="auth-card" role="main" aria-labelledby="forgot-title">
-		<h1 id="forgot-title">Forgot your password?</h1>
-		<p class="lead">Enter the email associated with your account and we'll send a link to reset your password.</p>
 
-		<?php if (!empty($msg)): ?>
-			<div class="msg <?php echo ($msg_type ?? '') === 'success' ? 'success' : 'error'; ?>">
-				<?php echo htmlspecialchars($msg); ?>
-			</div>
-		<?php endif; ?>
+<div class="auth-card" role="main">
+    <h1>Forgot password?</h1>
+    <p class="lead">No worries! Enter your email below and we'll send you reset instructions.</p>
 
-		<form method="post" action="">
-			<label for="email">Email</label>
-			<input id="email" class="input" type="email" name="email" required>
-			<button class="btn" type="submit">Send reset link</button>
-		</form>
+    <?php if ($msg): ?>
+        <div class="msg <?php echo $msg_type; ?>">
+            <?php echo htmlspecialchars($msg); ?>
+        </div>
+    <?php endif; ?>
 
-		<div class="small">
-			<a class="link" href="<?php echo $baseUrl; ?>/login">Back to login</a>
-		</div>
-	</div>
+    <form method="POST" action="">
+        <div class="form-group">
+            <label for="email">Email Address</label>
+            <input 
+                id="email" 
+                class="input" 
+                type="email" 
+                name="email" 
+                placeholder="name@company.com" 
+                required 
+                autofocus
+            >
+        </div>
+        
+        <button class="btn" type="submit">Send Reset Link</button>
+    </form>
+
+    <div class="footer-links">
+        <a class="link" href="<?php echo $baseUrl; ?>/login">← Back to login</a>
+    </div>
+</div>
+
 </body>
 </html>

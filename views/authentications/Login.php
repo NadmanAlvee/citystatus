@@ -22,26 +22,127 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login</title>
     <style>
-        :root{--bg:#f4f7fb;--card:#ffffff;--primary:#0078d4;--muted:#666}
-        *{box-sizing:border-box}
-        body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);display:flex;align-items:center;justify-content:center;min-height:100vh}
-        .card{width:360px;background:var(--card);padding:24px;border-radius:10px;box-shadow:0 8px 30px rgba(16,24,40,.08)}
-        h2{margin:0 0 18px;font-weight:600;color:#222;text-align:center}
-        .input-group{margin-bottom:12px}
-        label{display:block;margin-bottom:6px;font-size:13px;color:#444}
-        input[type="email"],input[type="password"],input[type="text"]{width:100%;padding:10px 12px;border:1px solid #979797;border-radius:8px;font-size:14px;background:#fff}
-        .actions{display:flex;justify-content:space-between;align-items:center;margin:10px 0 16px}
-        .remember{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
-        .forgot{font-size:13px;color:var(--primary);text-decoration:none}
-        .forgot:hover{text-decoration:underline}
-        button{width:100%;padding:11px;background:var(--primary);color:#fff;border:0;border-radius:8px;font-size:15px;cursor:pointer}
-        button:active{transform:translateY(1px)}
-        .meta{margin-top:14px;text-align:center;font-size:13px;color:var(--muted)}
-        .meta a{color:var(--primary);text-decoration:none}
-        .error{background:#fff2f2;color:#8a0000;padding:8px;border-radius:8px;margin-bottom:12px;font-size:13px}
+        :root {
+            --bg: #f4f7fb;
+            --card: #ffffff;
+            --primary: #0078d4;
+            --muted: #666;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Inter, Segoe UI, Arial, sans-serif;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .card {
+            width: 360px;
+            background: var(--card);
+            padding: 24px;
+            border-radius: 10px;
+            box-shadow: 0 8px 30px rgba(16, 24, 40, 0.08);
+        }
+
+        h2 {
+            margin: 0 0 18px;
+            font-weight: 600;
+            color: #222;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: #444;
+        }
+
+        input[type="email"],
+        input[type="password"],
+        input[type="text"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #979797;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #fff;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0 16px;
+        }
+
+        .remember {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .forgot {
+            font-size: 13px;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .forgot:hover {
+            text-decoration: underline;
+        }
+
+        button {
+            width: 100%;
+            padding: 11px;
+            background: var(--primary);
+            color: #fff;
+            border: 0;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .meta {
+            margin-top: 14px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .meta a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .error {
+            background: #fff2f2;
+            color: #8a0000;
+            padding: 8px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
     </style>
 </head>
 <body>
