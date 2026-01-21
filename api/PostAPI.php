@@ -29,25 +29,6 @@ try {
         exit;
     }
 
-    if ($action === 'getUsers') {
-        $sql = "SELECT user_id, name, email, user_type FROM users ORDER BY acc_creation DESC";
-        $res = $conn->query($sql);
-        $rows = [];
-        while ($r = $res->fetch_assoc()) $rows[] = $r;
-        echo json_encode($rows);
-        exit;
-    }
-
-    if ($action === 'deleteUser' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $data = json_decode(file_get_contents('php://input'), true);
-        $id = intval($data['user_id'] ?? 0);
-        $stmt = $conn->prepare("DELETE FROM users WHERE user_id = ?");
-        $stmt->bind_param("i", $id);
-        $stmt->execute();
-        echo json_encode(['success' => $stmt->affected_rows > 0]);
-        exit;
-    }
-
     if ($action === 'getAreas') {
         $sql = "SELECT area_id, division, city FROM areas ORDER BY division, city";
         $res = $conn->query($sql);
