@@ -59,12 +59,11 @@ CREATE TABLE posts (
     post_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     text TEXT NOT NULL,
-    image_link TEXT,
-    report_count INT DEFAULT 0 CHECK (report_count >= 0),
     division VARCHAR(100) NOT NULL,
     city VARCHAR(100),
     upvote INT DEFAULT 0 CHECK (upvote >= 0),
     downvote INT DEFAULT 0 CHECK (downvote >= 0),
+    report_count INT DEFAULT 0 CHECK (report_count >= 0),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(user_id)
         ON DELETE CASCADE
@@ -79,11 +78,11 @@ VALUES
 (
     1, 
     'This is my first post!', 
-    'https://example.com/image1.jpg', 
     'active', 
     'Dhaka', 
     'Gulshan', 
     10, 
-    2
+    2,
+    0
 );
 
