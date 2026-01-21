@@ -28,6 +28,9 @@
                   if ($method === 'POST') $controller->logout();
                   else http_response_code(405);
                   break;
+              case 'update':
+                  if ($method === 'POST') $controller->update();
+                  break;
               case 'getUsers':
                   if ($method === 'GET') $controller->getUsers();
                   break;

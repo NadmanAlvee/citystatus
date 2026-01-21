@@ -1,11 +1,16 @@
 <?php
 require_once 'models/User.php';
+require_once 'lib/DBConfig.php';
 
 class UserApiController {
     private $userModel;
 
     public function __construct() {
-        $this->userModel = new User();
+        $database = new Database();
+        $db = $database->getConnection();
+
+        $this->userModel = new User($db);
+
         header('Content-Type: application/json');
     }
 
@@ -21,6 +26,46 @@ class UserApiController {
             echo json_encode($users);
         } catch (Exception $e) {
             $this->sendError($e->getMessage());
+        }
+    }
+
+    public function update() {
+        if (session_status() === PHP_SESSION_NONE) session_start();
+        
+        // Check if user is logged in
+        if (!isset($_SESSION['user_id'])) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Unauthorized']);
+            return;
+        }
+
+        // Since your dashboard form uses standard POST, use $_POST
+        $userId = $_SESSION['user_id'];
+        $name = $_POST['name'] ?? '';
+        $district = $_POST['district'] ?? '';
+        $oldPassword = $_POST['old_password'] ?? '';
+        $newPassword = $_POST['new_password'] ?? '';
+
+        // 1. Verify the current password first for security
+        $user = $this->userModel->getUserById($userId); // Need this method in Model
+        
+        if (!password_verify($oldPassword, $user['password'])) {
+            header("Location: ../../dashboard?error=Incorrect current password");
+            exit;
+        }
+
+        // 2. Prepare data for update
+        $updateData = [
+            'name' => $name,
+            'district' => $district,
+            'password' => !empty($newPassword) ? password_hash($newPassword, PASSWORD_DEFAULT) : null
+        ];
+
+        if ($this->userModel->updateProfile($userId, $updateData)) {
+            $_SESSION['user_name'] = $name; // Update session name
+            header("Location: ../../dashboard?success=Profile updated");
+        } else {
+            header("Location: ../../dashboard?error=Update failed");
         }
     }
 
@@ -64,10 +109,45 @@ class UserApiController {
         }
     }
 
+    public function signup() {
+        try {
+            $data = json_decode(file_get_contents('php://input'), true);
+
+            $errors = $this->userModel->validate($data);
+
+            if (isset($data['email']) && $this->userModel->emailExists($data['email'])) {
+                $errors['email'] = 'This email is already registered.';
+            }
+            if (!empty($errors)) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'errors' => $errors]);
+                exit;
+            }
+            $userId = $this->userModel->create($data);
+
+            if ($userId) {
+                if (session_status() === PHP_SESSION_NONE) session_start();
+                
+                $_SESSION['user_id'] = $userId;
+                $_SESSION['user_name'] = $data['name'];
+                $_SESSION['user_type'] = 'user';
+
+                echo json_encode(['success' => true, 'message' => 'Registration successful!']);
+            } else {
+                throw new Exception("Could not save user to database.");
+            }
+
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+
     public function logout() {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
+        $_SESSION = array();
         session_unset();
         session_destroy();
         echo json_encode(['success' => true]);

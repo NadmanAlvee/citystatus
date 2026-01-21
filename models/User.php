@@ -3,10 +3,9 @@ require_once 'lib/DBConfig.php';
 
 class User {
     private $connection;
-
-    public function __construct() {
-        $database = new Database();
-        $this->connection = $database->getConnection();
+    
+    public function __construct($db) {
+        $this->connection = $db;
     }
 
     public function getAll() {
@@ -22,8 +21,23 @@ class User {
         return $stmt->affected_rows > 0;
     }
 
-    public function find($id)
-    {
+    public function updateProfile($id, $data) {
+        if ($data['password']) {
+            // If password is being changed
+            $query = "UPDATE users SET name = ?, district = ?, password = ? WHERE user_id = ?";
+            $stmt = $this->connection->prepare($query);
+            $stmt->bind_param("sssi", $data['name'], $data['district'], $data['password'], $id);
+        } else {
+            // Only update name and district
+            $query = "UPDATE users SET name = ?, district = ? WHERE user_id = ?";
+            $stmt = $this->connection->prepare($query);
+            $stmt->bind_param("ssi", $data['name'], $data['district'], $id);
+        }
+
+        return $stmt->execute();
+    }
+
+    public function getUserById($id) {
         $query = "SELECT * FROM users WHERE user_id = ?";
         $stmt = $this->connection->prepare($query);
         $stmt->bind_param("i", $id);
@@ -35,18 +49,34 @@ class User {
     {
         $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
         
-        $query = "INSERT INTO users (name, email, password, user_type) VALUES (?, ?, ?, 'user')";
+        $query = "INSERT INTO users (name, email, phone, password, sex, DOB, district, security_q, security_a, user_type) 
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'member')";
+        
         $stmt = $this->connection->prepare($query);
-        $stmt->bind_param("sss", $data['name'], $data['email'], $hashedPassword);
+        
+        $sex = ucfirst(strtolower($data['sex'])); 
+
+        $stmt->bind_param("sssssssss", 
+            $data['name'], 
+            $data['email'], 
+            $data['phone'], 
+            $hashedPassword, 
+            $sex, 
+            $data['dob'], 
+            $data['district'],
+            $data['security_q'],
+            $data['security_a']
+        );
 
         if ($stmt->execute()) {
             return $this->connection->insert_id;
         }
+
+        error_log("Insert Error: " . $stmt->error);
         return false;
     }
 
-    public function checkLogin($email, $password)
-    {
+    public function checkLogin($email, $password) {
         $query = "SELECT user_id, name, password, user_type FROM users WHERE email = ?";
         $stmt = $this->connection->prepare($query);
         $stmt->bind_param("s", $email);
@@ -54,9 +84,16 @@ class User {
         $result = $stmt->get_result();
 
         if ($user = $result->fetch_assoc()) {
+            // DEBUG: Check if the hash in DB is truncated (should be 60 chars)
+            error_log("DB Hash: " . $user['password']); 
+            
             if (password_verify($password, $user['password'])) {
                 return $user;
+            } else {
+                error_log("Password verify failed for " . $email);
             }
+        } else {
+            error_log("No user found with email " . $email);
         }
         return false;
     }

@@ -1,11 +1,16 @@
 <?php
 require_once 'models/Post.php';
+require_once 'lib/DBConfig.php';
 
 class PostApiController {
     private $postModel;
 
     public function __construct() {
-        $this->postModel = new Post();
+        $database = new Database();
+        $db = $database->getConnection();
+
+        $this->postModel = new Post($db);
+        
         header('Content-Type: application/json');
     }
 

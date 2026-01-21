@@ -9,8 +9,7 @@ CREATE TABLE users (
         CHECK (email LIKE '%_@_%._%'),
     phone CHAR(11) NOT NULL UNIQUE 
         CHECK (phone REGEXP '^[0-9]{11}$'),
-    password CHAR(6) NOT NULL 
-        CHECK (CHAR_LENGTH(password) = 6),
+    password VARCHAR(255) NOT NULL,
     sex ENUM('Male', 'Female', 'Other') NOT NULL,
     DOB DATE NOT NULL,
     district VARCHAR(100) NOT NULL,

@@ -1,3 +1,8 @@
+<?php
+session_start();
+$isLoggedIn = isset($_SESSION['user_id']);
+$isAdmin = (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true);
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

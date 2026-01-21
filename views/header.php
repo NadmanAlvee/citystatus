@@ -1,8 +1,3 @@
-<?php
-$isLoggedIn = isset($_SESSION['user_id']);
-$isAdmin = (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'admin');
-?>
-
 <header style="position: fixed; top: 0; left: 0; right: 0; height: 65px; background: #ffffff; border-bottom: 1px solid #e6e9ee; display: flex; align-items: center; justify-content: space-between; padding: 0 5%; z-index: 1000; font-family: Inter, Segoe UI, Arial, sans-serif;">
     
     <div class="header-left" style="display: flex; align-items: center; gap: 20px; flex: 1;">
@@ -25,10 +20,10 @@ $isAdmin = (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'admin')
         <?php endif; ?>
 
         <?php if ($isLoggedIn): ?>
-            <a href="javascript:void(0)" onclick="handleLogout()" class="btn-logout" 
-                style="padding: 7px 15px; background: #fff2f2; color: #d93025; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500;">
+            <button onclick="handleLogout()" class="btn-logout" 
+                style="padding: 7px 15px; color: #d93025; border: none; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500; cursor: pointer; background: #fff2f2; hover: background: #ffc8c8;">
                 Logout
-            </a>
+            </button>
         <?php else: ?>
             <a href="/citystatus/login" class="btn-logout" 
                 style="padding: 7px 15px; background: #eef6ff; color: #0078d4; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500;">
@@ -40,14 +35,17 @@ $isAdmin = (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'admin')
 <div style="height: 65px; width: 100%; visibility: hidden; pointer-events: none;"></div>
 
 <script>
-function handleLogout() {
-    if(!confirm('Are you sure you want to logout?')) return;
-
+  function handleLogout() {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', '/citystatus/api/user/logout', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.onload = function() {
-        window.location.href = '/citystatus/login';
-    };
+        if (xhr.status === 200) {
+          window.location.href = '/citystatus/index'; 
+        } else {
+          console.error('Logout failed');
+        }
+      };
     xhr.send();
-}
+  }
 </script>
