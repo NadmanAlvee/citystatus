@@ -16,6 +16,31 @@ class Post {
         return ($res) ? $res->fetch_all(MYSQLI_ASSOC) : [];
     }
 
+    public function incrementVote($id, $type) {
+        $column = ($type === 'up') ? 'upvote' : (($type === 'down') ? 'downvote' : 'report_count');
+        
+        $query = "UPDATE posts SET $column = $column + 1 WHERE post_id = ?";
+        $stmt = $this->connection->prepare($query);
+        $stmt->bind_param("i", $id);
+        
+        if ($stmt->execute()) {
+            $res = $this->connection->query("SELECT $column FROM posts WHERE post_id = $id");
+            return $res->fetch_assoc()[$column];
+        }
+        return false;
+    }
+
+    public function getPostById($id) {
+        $sql = "SELECT p.*, u.name 
+                FROM posts p 
+                LEFT JOIN users u ON p.user_id = u.user_id 
+                WHERE p.post_id = ?";
+        $stmt = $this->connection->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc();
+    }
+
     public function getUserPosts($userId) {
         $query = "SELECT text, division, city, upvote, downvote, created_at 
                   FROM posts WHERE user_id = ? ORDER BY created_at DESC";

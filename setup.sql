@@ -28,7 +28,7 @@ VALUES
     'John',
     'john@gmail.com',
     '01333333333',
-    '123456',
+    '$2y$10$PciWWkUZsCHG04P1K7sSB.r2.t1g44DkowD7Yv1UyB1dZQs/Ne1n.',
     'Male',
     '2001-08-12',
     'Dhaka',
@@ -38,7 +38,7 @@ VALUES
 );
 
 
---MEMBER
+--MEMBER password: 123456
 INSERT INTO users 
 (name, email, phone, password, sex, DOB, district, security_q, security_a)
 VALUES 
@@ -46,7 +46,7 @@ VALUES
     'Doe',
     'doe@gmail.com',
     '01333333334',
-    '123456',
+    '$2y$10$PciWWkUZsCHG04P1K7sSB.r2.t1g44DkowD7Yv1UyB1dZQs/Ne1n.',
     'Male',
     '2001-08-12',
     'Dhaka',

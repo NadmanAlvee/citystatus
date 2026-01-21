@@ -29,6 +29,32 @@ class PostApiController {
         }
     }
 
+    public function UpvoteOrDownvote() {
+        try {
+            $data = json_decode(file_get_contents('php://input'), true);
+            $id = intval($data['post_id'] ?? 0);
+            $type = $data['type'] ?? '';
+
+            if ($id <= 0) {
+                $this->sendError("Invalid Post ID", 400);
+            }
+
+            if (!in_array($type, ['up', 'down'])) {
+                $this->sendError("Invalid vote type", 400);
+            }
+
+            $newCount = $this->postModel->incrementVote($id, $type);
+
+            if ($newCount !== false) {
+                echo json_encode(['success' => true, 'new_count' => $newCount]);
+            } else {
+                $this->sendError("Update failed", 500);
+            }
+        } catch (Exception $e) {
+            $this->sendError($e->getMessage());
+        }
+    }
+
     public function addPost() {
         session_start();
         if (!isset($_SESSION['user_id'])) {

@@ -53,6 +53,9 @@
               case 'getPosts':
                   $controller->getPosts();
                   break;
+              case 'UpvoteOrDownvote':
+                  $controller->UpvoteOrDownvote();
+                  break;
               case 'addPost':
                   $controller->addPost();
                   break;
