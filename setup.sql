@@ -73,12 +73,11 @@ CREATE TABLE posts (
 
 
 INSERT INTO posts 
-(user_id, text, image_link, post_status, division, city, upvote, downvote)
+(user_id, text, division, city, upvote, downvote, report_count)
 VALUES 
 (
     1, 
     'This is my first post!', 
-    'active', 
     'Dhaka', 
     'Gulshan', 
     10, 
