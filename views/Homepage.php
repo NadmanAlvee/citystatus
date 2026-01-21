@@ -8,7 +8,7 @@ $isAdmin = (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true);
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>CITYSTATUS | Home</title>
+    <title>CITYSTATUS | Home Page</title>
     <style>
         :root {
             --bg: #f4f7fb;
