@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../models/User.php';
+require_once 'models/User.php';
 
 class UserApiController {
     private $userModel;

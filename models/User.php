@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../lib/DBConfig.php';
+require_once 'lib/DBConfig.php';
 
 class User {
     private $connection;
