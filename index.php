@@ -5,38 +5,62 @@
   $path = trim($path, '/'); 
   $segments = explode('/', $path);
 
-  // Check if it starts with api/user
-  if (isset($segments[1]) && $segments[1] === 'api' && isset($segments[2]) && $segments[2] === 'user') {
-    require_once 'api/UserAPI.php';
-    $controller = new UserApiController();
-    
-    // The action is the 3rd part of the URL (e.g., api/user/login)
-    $action = $segments[3] ?? '';
-    error_log("API Action detected: " . $action);
-    $method = $_SERVER['REQUEST_METHOD'];
+  if (isset($segments[1]) && $segments[1] === 'api') {
+      $resource = $segments[2] ?? '';
+      $action   = $segments[3] ?? '';
+      $method   = $_SERVER['REQUEST_METHOD'];
 
-    switch ($action) {
-        case 'login':
-            if ($method === 'POST') $controller->login();
-            else http_response_code(405);
-            break;
+      // --- USER API ---
+      if ($resource === 'user') {
+          require_once 'api/UserAPI.php';
+          $controller = new UserApiController();
 
-        case 'signup':
-            if ($method === 'POST') $controller->signup();
-            else http_response_code(405);
-            break;
+          switch ($action) {
+              case 'login':
+                  if ($method === 'POST') $controller->login();
+                  else http_response_code(405);
+                  break;
+              case 'signup':
+                  if ($method === 'POST') $controller->signup();
+                  else http_response_code(405);
+                  break;
+              case 'getUsers':
+                  if ($method === 'GET') $controller->getUsers();
+                  break;
+              case 'deleteUser':
+                  if ($method === 'POST') $controller->deleteUser();
+                  break;
+              default:
+                  http_response_code(404);
+                  echo json_encode(['error' => 'User endpoint not found']);
+          }
+          exit;
+      }
 
-        case 'health-check':
-            if ($method === 'GET') $controller->healthCheck();
-            else http_response_code(405);
-            break;
+      // --- POST/AREA API ---
+      if ($resource === 'post') {
+          require_once 'api/PostAPI.php';
+          $controller = new PostApiController();
 
-        default:
-            http_response_code(404);
-            echo json_encode(['error' => 'Endpoint not found']);
-            break;
-    }
-    exit;
+          switch ($action) {
+              case 'getPosts':
+                  $controller->getPosts();
+                  break;
+              case 'deletePost':
+                  if ($method === 'POST') $controller->deletePost();
+                  break;
+              case 'getAreas':
+                  $controller->getAreas();
+                  break;
+              case 'addArea':
+                  if ($method === 'POST') $controller->addArea();
+                  break;
+              default:
+                  http_response_code(404);
+                  echo json_encode(['error' => 'Post endpoint not found']);
+          }
+          exit;
+      }
   }
 
   // Get path and remove base path

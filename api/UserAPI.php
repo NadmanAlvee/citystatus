@@ -1,36 +1,69 @@
 <?php
-require_once __DIR__ . '/../lib/DBConfig.php';
-header('Content-Type: application/json');
+require_once __DIR__ . '/../models/User.php';
 
-$db = new Database();
-$conn = $db->getConnection();
+class UserApiController {
+    private $userModel;
 
-$action = $_GET['action'] ?? '';
+    public function __construct() {
+        $this->userModel = new User();
+        header('Content-Type: application/json');
+    }
 
-try {
-    if ($action === 'getUsers') {
-        $sql = "SELECT user_id, name, email, user_type FROM users ORDER BY acc_creation DESC";
-        $res = $conn->query($sql);
-        $rows = [];
-        while ($r = $res->fetch_assoc()) $rows[] = $r;
-        echo json_encode($rows);
+    private function sendError($message, $code = 500) {
+        http_response_code($code);
+        echo json_encode(['error' => $message]);
         exit;
     }
 
-    if ($action === 'deleteUser' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $data = json_decode(file_get_contents('php://input'), true);
-        $id = intval($data['user_id'] ?? 0);
-        $stmt = $conn->prepare("DELETE FROM users WHERE user_id = ?");
-        $stmt->bind_param("i", $id);
-        $stmt->execute();
-        echo json_encode(['success' => $stmt->affected_rows > 0]);
-        exit;
+    public function getUsers() {
+        try {
+            $users = $this->userModel->getAll();
+            echo json_encode($users);
+        } catch (Exception $e) {
+            $this->sendError($e->getMessage());
+        }
     }
 
-    http_response_code(400);
-    echo json_encode(['error' => 'Invalid action']);
-} catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['error' => $e->getMessage()]);
+    public function deleteUser() {
+        try {
+            $data = json_decode(file_get_contents('php://input'), true);
+            $id = intval($data['user_id'] ?? 0);
+
+            if ($id <= 0) {
+                $this->sendError("Invalid User ID", 400);
+            }
+
+            $success = $this->userModel->delete($id);
+            echo json_encode(['success' => $success]);
+        } catch (Exception $e) {
+            $this->sendError($e->getMessage());
+        }
+    }
+
+    public function login() {
+        try {
+            $data = json_decode(file_get_contents('php://input'), true);
+            $email = $data['email'] ?? '';
+            $password = $data['password'] ?? '';
+
+            $user = $this->userModel->checkLogin($email, $password);
+
+            if ($user) {
+                // Start session and store user info if needed
+                if (session_status() === PHP_SESSION_NONE) session_start();
+                $_SESSION['user_id'] = $user['user_id'];
+                $_SESSION['user_type'] = $user['user_type'];
+
+                echo json_encode(['success' => true, 'user' => [
+                    'name' => $user['name'],
+                    'user_type' => $user['user_type']
+                ]]);
+            } else {
+                $this->sendError("Invalid email or password", 401);
+            }
+        } catch (Exception $e) {
+            $this->sendError($e->getMessage());
+        }
+    }
 }
 ?>

@@ -1,97 +1,95 @@
 <?php
-require_once   'lib/DBConfig.php';
+require_once __DIR__ . '/../lib/DBConfig.php';
 
-class User
-{
-	private $connection;
+class User {
+    private $connection;
 
-	public function __construct()
-	{
-		$database = new Database();
-		$this->connection = $database->getConnection();
-	}
+    public function __construct() {
+        $database = new Database();
+        $this->connection = $database->getConnection();
+    }
 
-	public function getAll()
-	{
-		$query = "SELECT * FROM users ORDER BY created_at DESC";
-		$result = $this->connection->query($query);
+    public function getAll() {
+        $query = "SELECT user_id, name, email, user_type, acc_creation FROM users ORDER BY acc_creation DESC";
+        $result = $this->connection->query($query);
+        return ($result) ? $result->fetch_all(MYSQLI_ASSOC) : [];
+    }
 
-		if ($result) {
-			return $result->fetch_all(MYSQLI_ASSOC);
-		}
-		return [];
-	}
+    public function delete($id) {
+        $stmt = $this->connection->prepare("DELETE FROM users WHERE user_id = ?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        return $stmt->affected_rows > 0;
+    }
 
-	public function find($id)
-	{
-		$query = "SELECT * FROM users WHERE id = ?";
-		$stmt = $this->connection->prepare($query);
-		$stmt->bind_param("i", $id);
-		$stmt->execute();
+    public function find($id)
+    {
+        $query = "SELECT * FROM users WHERE user_id = ?";
+        $stmt = $this->connection->prepare($query);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc();
+    }
 
-		$result = $stmt->get_result();
-		return $result->fetch_assoc();
-	}
+    public function create($data)
+    {
+        $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
+        
+        $query = "INSERT INTO users (name, email, password, user_type) VALUES (?, ?, ?, 'user')";
+        $stmt = $this->connection->prepare($query);
+        $stmt->bind_param("sss", $data['name'], $data['email'], $hashedPassword);
 
-	public function create($data)
-	{
-		$query = "INSERT INTO users (name, email, phone) VALUES (?, ?, ?)";
-		$stmt = $this->connection->prepare($query);
-		$stmt->bind_param("sss", $data['name'], $data['email'], $data['phone']);
+        if ($stmt->execute()) {
+            return $this->connection->insert_id;
+        }
+        return false;
+    }
 
-		if ($stmt->execute()) {
-			return $this->connection->insert_id;
-		}
-		return false;
-	}
+    public function checkLogin($email, $password)
+    {
+        $query = "SELECT user_id, name, password, user_type FROM users WHERE email = ?";
+        $stmt = $this->connection->prepare($query);
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-	public function checkLogin($email, $password)
-	{
-		$query = "SELECT * FROM users WHERE email = ? AND password = ?";
-		$prepared_statement = $this->connection->prepare($query);
-		$prepared_statement->bind_param("ss", $email, $password);
-		$prepared_statement->execute();
-		$result = $prepared_statement->get_result();
-		return $result->num_rows > 0;
-	}
+        if ($user = $result->fetch_assoc()) {
+            if (password_verify($password, $user['password'])) {
+                return $user;
+            }
+        }
+        return false;
+    }
 
-	public function validate($data)
-	{
-		$errors = [];
+    public function validate($data)
+    {
+        $errors = [];
+        if (empty($data['name']) || strlen(trim($data['name'])) < 2) {
+            $errors['name'] = 'Name must be at least 2 characters long';
+        }
+        if (empty($data['email']) || !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            $errors['email'] = 'Please enter a valid email address';
+        }
+        if (empty($data['password']) || strlen($data['password']) < 6) {
+            $errors['password'] = 'Password must be at least 6 characters';
+        }
+        return $errors;
+    }
 
-		if (empty($data['name']) || strlen(trim($data['name'])) < 2) {
-			$errors['name'] = 'Name must be at least 2 characters long';
-		}
+    public function emailExists($email, $excludeId = null)
+    {
+        $query = "SELECT user_id FROM users WHERE email = ?";
+        if ($excludeId) {
+            $query .= " AND user_id != ?";
+            $stmt = $this->connection->prepare($query);
+            $stmt->bind_param("si", $email, $excludeId);
+        } else {
+            $stmt = $this->connection->prepare($query);
+            $stmt->bind_param("s", $email);
+        }
 
-		if (empty($data['email']) || !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-			$errors['email'] = 'Please enter a valid email address';
-		}
-
-		if (!empty($data['phone']) && !preg_match('/^[\d\-\+\(\)\s]+$/', $data['phone'])) {
-			$errors['phone'] = 'Please enter a valid phone number';
-		}
-
-		return $errors;
-	}
-
-	public function emailExists($email, $excludeId = null)
-	{
-		$query = "SELECT id FROM users WHERE email = ?";
-		$params = [$email];
-		$types = "s";
-
-		if ($excludeId) {
-			$query .= " AND id != ?";
-			$params[] = $excludeId;
-			$types .= "i";
-		}
-
-		$stmt = $this->connection->prepare($query);
-		$stmt->bind_param($types, ...$params);
-		$stmt->execute();
-
-		$result = $stmt->get_result();
-		return $result->num_rows > 0;
-	}
+        $stmt->execute();
+        return $stmt->get_result()->num_rows > 0;
+    }
 }
 ?>

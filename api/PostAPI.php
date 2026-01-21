@@ -1,59 +1,65 @@
 <?php
-require_once __DIR__ . '/../lib/DBConfig.php';
-header('Content-Type: application/json');
+require_once __DIR__ . '/../models/Post.php';
 
-$db = new Database();
-$conn = $db->getConnection();
+class PostApiController {
+    private $postModel;
 
-$action = $_GET['action'] ?? '';
+    public function __construct() {
+        $this->postModel = new Post();
+        header('Content-Type: application/json');
+    }
 
-try {
-    if ($action === 'getPosts') {
-        $sql = "SELECT p.post_id, p.text, p.division, p.city, p.created_at, p.user_id, u.name, u.email
-                FROM posts p LEFT JOIN users u ON p.user_id = u.user_id
-                ORDER BY p.created_at DESC";
-        $res = $conn->query($sql);
-        $rows = [];
-        while ($r = $res->fetch_assoc()) $rows[] = $r;
-        echo json_encode($rows);
+    private function sendError($message, $code = 500) {
+        http_response_code($code);
+        echo json_encode(['error' => $message]);
         exit;
     }
 
-    if ($action === 'deletePost' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $data = json_decode(file_get_contents('php://input'), true);
-        $id = intval($data['post_id'] ?? 0);
-        $stmt = $conn->prepare("DELETE FROM posts WHERE post_id = ?");
-        $stmt->bind_param("i", $id);
-        $stmt->execute();
-        echo json_encode(['success' => $stmt->affected_rows > 0]);
-        exit;
+    public function getPosts() {
+        try {
+            $data = $this->postModel->getAllPosts();
+            echo json_encode($data);
+        } catch (Exception $e) {
+            $this->sendError($e->getMessage());
+        }
     }
 
-    if ($action === 'getAreas') {
-        $sql = "SELECT area_id, division, city FROM areas ORDER BY division, city";
-        $res = $conn->query($sql);
-        $rows = [];
-        while ($r = $res->fetch_assoc()) $rows[] = $r;
-        echo json_encode($rows);
-        exit;
+    public function deletePost() {
+        try {
+            $data = json_decode(file_get_contents('php://input'), true);
+            $id = intval($data['post_id'] ?? 0);
+            
+            if ($id <= 0) $this->sendError("Invalid Post ID", 400);
+
+            $success = $this->postModel->delete($id);
+            echo json_encode(['success' => $success]);
+        } catch (Exception $e) {
+            $this->sendError($e->getMessage());
+        }
     }
 
-    if ($action === 'addArea' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $data = json_decode(file_get_contents('php://input'), true);
-        $division = trim($data['division'] ?? '');
-        $city = trim($data['city'] ?? '');
-        if ($division === '') { http_response_code(400); echo json_encode(['error'=>'division required']); exit; }
-        $stmt = $conn->prepare("INSERT INTO areas (division, city) VALUES (?, ?)");
-        $stmt->bind_param("ss", $division, $city);
-        $stmt->execute();
-        echo json_encode(['success' => $stmt->affected_rows > 0, 'id' => $stmt->insert_id]);
-        exit;
+    public function getAreas() {
+        try {
+            $data = $this->postModel->getAllAreas();
+            echo json_encode($data);
+        } catch (Exception $e) {
+            $this->sendError($e->getMessage());
+        }
     }
 
-    http_response_code(400);
-    echo json_encode(['error' => 'Invalid action']);
-} catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['error' => $e->getMessage()]);
+    public function addArea() {
+        try {
+            $data = json_decode(file_get_contents('php://input'), true);
+            $division = trim($data['division'] ?? '');
+            $city = trim($data['city'] ?? '');
+            
+            if (empty($division)) $this->sendError('Division is required', 400);
+
+            $result = $this->postModel->createArea($division, $city);
+            echo json_encode($result);
+        } catch (Exception $e) {
+            $this->sendError($e->getMessage());
+        }
+    }
 }
 ?>
