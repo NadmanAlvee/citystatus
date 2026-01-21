@@ -17,6 +17,12 @@ class Post {
         return ($res) ? $res->fetch_all(MYSQLI_ASSOC) : [];
     }
 
+    public function create($text, $division, $city, $userId) {
+        $stmt = $this->conn->prepare("INSERT INTO posts (text, division, city, user_id) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("sssi", $text, $division, $city, $userId);
+        return $stmt->execute();
+    }
+
     public function delete($id) {
         $stmt = $this->conn->prepare("DELETE FROM posts WHERE post_id = ?");
         $stmt->bind_param("i", $id);

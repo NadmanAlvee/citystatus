@@ -24,6 +24,29 @@ class PostApiController {
         }
     }
 
+    public function addPost() {
+        session_start();
+        if (!isset($_SESSION['user_id'])) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Unauthorized']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        $text = trim($data['text'] ?? '');
+        $div = trim($data['division'] ?? '');
+        $city = trim($data['city'] ?? '');
+
+        if (empty($text) || empty($div)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Text and Division required']);
+            return;
+        }
+
+        $success = $this->postModel->create($text, $div, $city, $_SESSION['user_id']);
+        echo json_encode(['success' => $success]);
+    }
+
     public function deletePost() {
         try {
             $data = json_decode(file_get_contents('php://input'), true);
