@@ -65,10 +65,13 @@ class UserApiController {
     }
 
     public function logout() {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         session_unset();
         session_destroy();
         echo json_encode(['success' => true]);
+        exit;
     }
 }
 ?>
