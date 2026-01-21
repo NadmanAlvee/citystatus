@@ -1,23 +1,4 @@
-<?php
-// handle POST login using model->checkLogin()
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    require_once __DIR__ . '/../../models/users.php';
-    $email = trim($_POST['email'] ?? '');
-    $password = trim($_POST['password'] ?? '');
 
-    $authMessage = '';
-    if ($email === '' || $password === '') {
-        $authMessage = 'email and password required';
-    } else {
-        $user = new User();
-        if ($user->checkLogin($email, $password)) {
-            $authMessage = 'logged in';
-        } else {
-            $authMessage = 'invalid credentials';
-        }
-    }
-}
-?>
 <!doctype html>
 <html lang="en">
 <head>
