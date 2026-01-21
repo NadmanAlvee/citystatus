@@ -41,29 +41,34 @@ class UserApiController {
     }
 
     public function login() {
-        try {
-            $data = json_decode(file_get_contents('php://input'), true);
-            $email = $data['email'] ?? '';
-            $password = $data['password'] ?? '';
+        $data = json_decode(file_get_contents('php://input'), true);
+        $email = $data['email'] ?? '';
+        $password = $data['password'] ?? '';
 
-            $user = $this->userModel->checkLogin($email, $password);
+        $user = $this->userModel->checkLogin($email, $password);
 
-            if ($user) {
-                // Start session and store user info if needed
-                if (session_status() === PHP_SESSION_NONE) session_start();
-                $_SESSION['user_id'] = $user['user_id'];
-                $_SESSION['user_type'] = $user['user_type'];
+        if ($user) {
+            if (session_status() === PHP_SESSION_NONE) session_start();
 
-                echo json_encode(['success' => true, 'user' => [
-                    'name' => $user['name'],
-                    'user_type' => $user['user_type']
-                ]]);
-            } else {
-                $this->sendError("Invalid email or password", 401);
+            $_SESSION['user_id'] = $user['user_id'];
+            $_SESSION['user_name'] = $user['name'];
+
+            if($user['user_type'] === 'admin'){
+                $_SESSION['is_admin'] = true;
             }
-        } catch (Exception $e) {
-            $this->sendError($e->getMessage());
+
+            echo json_encode(['success' => true]);
+        } else {
+            http_response_code(401);
+            echo json_encode(['error' => 'Invalid credentials']);
         }
+    }
+
+    public function logout() {
+        session_start();
+        session_unset();
+        session_destroy();
+        echo json_encode(['success' => true]);
     }
 }
 ?>

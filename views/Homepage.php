@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <!doctype html>
 <html lang="en">
 <head>
@@ -33,25 +36,28 @@
 
     <?php include 'views/header.php'; ?>
 
+    
     <div class="container">
-        <div class="create-post">
-            <form id="postForm">
-                <textarea id="postText" placeholder="What's happening in your city?" required></textarea>
-                
-                <div class="post-selectors">
-                    <select id="postDivision" required>
-                        <option value="">Select Division</option>
-                        <option value="Dhaka">Dhaka</option>
-                        <option value="Chittagong">Chittagong</option>
-                    </select>
-                    <input type="text" id="postCity" placeholder="City (Optional)" style="font-size:13px; padding:5px; border:1px solid var(--border); border-radius:5px;">
-                </div>
+        <?php if(isset($_SESSION['user_id'])): ?>
+          <div class="create-post">
+              <form id="postForm">
+                  <textarea id="postText" placeholder="What's happening in your city?" required></textarea>
+                  
+                  <div class="post-selectors">
+                      <select id="postDivision" required>
+                          <option value="">Select Division</option>
+                          <option value="Dhaka">Dhaka</option>
+                          <option value="Chittagong">Chittagong</option>
+                      </select>
+                      <input type="text" id="postCity" placeholder="City (Optional)" style="font-size:13px; padding:5px; border:1px solid var(--border); border-radius:5px;">
+                  </div>
 
-                <div class="post-actions">
-                    <button type="submit" class="btn-post">Post</button>
-                </div>
-            </form>
-        </div>
+                  <div class="post-actions">
+                      <button type="submit" class="btn-post">Post</button>
+                  </div>
+              </form>
+          </div>
+        <?php endif; ?>
 
         <div id="post-feed">
             </div>

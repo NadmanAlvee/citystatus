@@ -24,6 +24,10 @@
                   if ($method === 'POST') $controller->signup();
                   else http_response_code(405);
                   break;
+              case 'logout':
+                  if ($method === 'POST') $controller->logout();
+                  else http_response_code(405);
+                  break;
               case 'getUsers':
                   if ($method === 'GET') $controller->getUsers();
                   break;
@@ -45,6 +49,9 @@
           switch ($action) {
               case 'getPosts':
                   $controller->getPosts();
+                  break;
+              case 'addPost':
+                  $controller->addPost();
                   break;
               case 'deletePost':
                   if ($method === 'POST') $controller->deletePost();
