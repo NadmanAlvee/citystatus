@@ -41,7 +41,6 @@
             </div>
 
             <div class="actions">
-                <label class="remember"><input type="checkbox" id="remember"> Remember me</label>
                 <a class="forgot" href="forgotpassword">Forgot password?</a>
             </div>
 

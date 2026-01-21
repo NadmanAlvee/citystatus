@@ -4,8 +4,6 @@
         <a href="/citystatus/index" class="logo" style="font-weight: 800; font-size: 20px; color: #0078d4; text-decoration: none; letter-spacing: -0.5px;">
             CITYSTATUS
         </a>
-        <input type="text" class="search-bar" placeholder="Search posts or cities..." 
-            style="width: 300px; padding: 8px 15px; border: 1px solid #e6e9ee; border-radius: 20px; background: #f8f9fa; font-size: 14px; outline: none;">
     </div>
 
     <div class="header-right" style="display: flex; align-items: center; gap: 15px;">

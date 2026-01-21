@@ -9,9 +9,7 @@ class Post {
     }
 
     public function getAllPosts() {
-        $sql = "SELECT p.post_id, p.text, p.division, p.city, p.created_at, p.user_id, u.name, u.email
-                FROM posts p LEFT JOIN users u ON p.user_id = u.user_id
-                ORDER BY p.created_at DESC";
+        $sql = "SELECT * FROM posts p LEFT JOIN users u ON p.user_id = u.user_id ORDER BY p.created_at DESC";
         $res = $this->connection->query($sql);
         return ($res) ? $res->fetch_all(MYSQLI_ASSOC) : [];
     }
@@ -42,7 +40,7 @@ class Post {
     }
 
     public function getUserPosts($userId) {
-        $query = "SELECT text, division, city, upvote, downvote, created_at 
+        $query = "SELECT post_id, text, division, city, upvote, downvote, created_at 
                   FROM posts WHERE user_id = ? ORDER BY created_at DESC";
         $stmt = $this->connection->prepare($query);
         $stmt->bind_param("i", $userId);

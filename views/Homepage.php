@@ -10,18 +10,53 @@ $isAdmin = (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true);
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>CITYSTATUS | Home</title>
     <style>
-        :root{--bg:#f4f7fb;--card:#ffffff;--primary:#0078d4;--muted:#666;--border:#e2e8f0;--text:#222}
+        :root {
+            --bg: #f4f7fb;
+            --card: #ffffff;
+            --primary: #0078d4;
+            --muted: #666;
+            --border: #e2e8f0;
+            --text: #222;
+        }
         body { margin:0; font-family: 'Segoe UI', Arial, sans-serif; background:var(--bg); color:var(--text); }
         * { box-sizing:border-box }
         
         .container { max-width: 650px; margin: 20px auto; padding: 0 15px; }
 
+        /* Header Search Styling */
+        .search-container {
+            display: flex;
+            align-items: center;
+            background: #f1f3f4;
+            padding: 4px 12px;
+            border-radius: 20px;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+        .search-container:focus-within {
+            background: #fff;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.1);
+        }
+        .search-container select {
+            background: transparent;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            color: var(--text);
+            padding: 4px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
         /* Create Post Box */
         .create-post { background: var(--card); padding: 20px; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 25px; }
         .create-post textarea { width: 100%; border: none; resize: none; min-height: 80px; font-size: 16px; outline: none; font-family: inherit; margin-bottom: 10px; }
         .post-actions { display: flex; justify-content: flex-end; border-top: 1px solid var(--border); padding-top: 12px; }
+        
         .post-selectors { display: flex; gap: 10px; margin-bottom: 10px; }
-        .post-selectors select, .post-selectors input { padding: 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; }
+        .post-selectors select, .post-selectors input { padding: 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; outline: none; }
+        .post-selectors select:focus, .post-selectors input:focus { border-color: var(--primary); }
 
         .btn-post { background: var(--primary); color: white; border: none; padding: 8px 24px; border-radius: 20px; font-weight: 600; cursor: pointer; }
 
@@ -42,12 +77,57 @@ $isAdmin = (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true);
         .btn-report:hover { background: #fff0f0; color: #d93025; border-color: #d93025; }
 
         .post-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 10px; }
-        #loading { text-align: center; padding: 20px; color: var(--muted); }
+        #loading { text-align: center; padding: 40px; color: var(--muted); }
     </style>
 </head>
 <body>
 
-    <?php include 'views/header.php'; ?>
+    <header style="position: fixed; top: 0; left: 0; right: 0; height: 65px; background: #ffffff; border-bottom: 1px solid #e6e9ee; display: flex; align-items: center; justify-content: space-between; padding: 0 5%; z-index: 1000;">
+        <div class="header-left" style="display: flex; align-items: center; gap: 20px; flex: 1;">
+            <a href="/citystatus/index" style="font-weight: 800; font-size: 20px; color: #0078d4; text-decoration: none; letter-spacing: -0.5px;">
+                CITYSTATUS
+            </a>
+            
+            <div class="search-container">
+                <span style="font-size: 14px; margin-right: 5px;">🔍</span>
+                <select id="searchDivision">
+                    <option value="All">All Regions</option>
+                    <option value="Dhaka">Dhaka</option>
+                    <option value="Chittagong">Chittagong</option>
+                    <!-- <option value="Rajshahi">Rajshahi</option>
+                    <option value="Sylhet">Sylhet</option>
+                    <option value="Khulna">Khulna</option>
+                    <option value="Barisal">Barisal</option>
+                    <option value="Rangpur">Rangpur</option>
+                    <option value="Mymensingh">Mymensingh</option> -->
+                </select>
+            </div>
+        </div>
+
+        <div class="header-right" style="display: flex; align-items: center; gap: 15px;">
+            <a href="<?php echo $isLoggedIn ? '/citystatus/user-dashboard' : '/citystatus/login'; ?>" style="text-decoration: none; color: #666; font-size: 14px; font-weight: 500;">
+                Profile
+            </a>
+
+            <?php if ($isAdmin): ?>
+            <a href="/citystatus/admin-dashboard" style="text-decoration: none; color: #666; font-size: 14px; font-weight: 500;">
+                Admin
+            </a>
+            <?php endif; ?>
+
+            <?php if ($isLoggedIn): ?>
+                <button onclick="handleLogout()" style="padding: 7px 15px; color: #d93025; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; background: #fff2f2;">
+                    Logout
+                </button>
+            <?php else: ?>
+                <a href="/citystatus/login" style="padding: 7px 15px; background: #eef6ff; color: #0078d4; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500;">
+                    Login
+                </a>
+            <?php endif; ?>
+        </div>
+    </header>
+    
+    <div style="height: 85px;"></div>
 
     <div class="container">
         <?php if($isLoggedIn): ?>
@@ -59,6 +139,12 @@ $isAdmin = (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true);
                           <option value="">Select Division</option>
                           <option value="Dhaka">Dhaka</option>
                           <option value="Chittagong">Chittagong</option>
+                          <!-- <option value="Rajshahi">Rajshahi</option>
+                          <option value="Sylhet">Sylhet</option>
+                          <option value="Khulna">Khulna</option>
+                          <option value="Barisal">Barisal</option>
+                          <option value="Rangpur">Rangpur</option>
+                          <option value="Mymensingh">Mymensingh</option> -->
                       </select>
                       <input type="text" id="postCity" placeholder="City (Optional)">
                   </div>
@@ -75,38 +161,56 @@ $isAdmin = (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true);
 
     <script>
         const POST_API = '/citystatus/api/post/';
+        let allPosts = []; // Global variable to store fetched posts
 
+        // Initial Load
         function loadPosts() {
-            const feed = document.getElementById('post-feed');
             const loader = document.getElementById('loading');
             
             fetch(POST_API + 'getPosts')
                 .then(res => res.json())
                 .then(posts => {
-                    renderPosts(posts);
+                    allPosts = posts; // Save to memory
+                    filterAndRender(); // Display based on current filter
                     loader.style.display = 'none';
                 })
-                .catch(err => console.error("Error loading posts:", err));
+                .catch(err => {
+                    console.error("Error loading posts:", err);
+                    loader.innerText = "Error loading feed.";
+                });
         }
 
-        function renderPosts(posts) {
+        // Logic to filter and show posts
+        function filterAndRender() {
+            const selectedDivision = document.getElementById('searchDivision').value;
             const feed = document.getElementById('post-feed');
-            if (posts.length === 0) {
-                feed.innerHTML = '<p style="text-align:center; color:#666;">No updates found for this area.</p>';
+            
+            // Filter the array
+            const filteredPosts = (selectedDivision === "All") 
+                ? allPosts 
+                : allPosts.filter(p => p.division === selectedDivision);
+
+            // Render
+            if (filteredPosts.length === 0) {
+                feed.innerHTML = `
+                    <div style="text-align:center; padding: 40px; color:#666;">
+                        <p style="font-size: 24px;">📍</p>
+                        <p>No updates found for ${selectedDivision}.</p>
+                    </div>`;
                 return;
             }
 
-            feed.innerHTML = posts.map(p => `
+            feed.innerHTML = filteredPosts.map(p => `
                 <div class="post-card">
                     <span class="author">@${escapeHtml(p.name || 'anonymous')}</span>
                     <p>${escapeHtml(p.text)}</p>
                     
                     <div class="post-interactions">
                         <button onclick="handleAction(${p.post_id}, 'up')" class="btn-vote btn-up">
-                            👍 <span id="up-count-${p.post_id}">${p.upvote || 0}</span>
+                            👍 <span id="up-count-${p.post_id}">${p.upvote}</span>
                         </button>
                         <button onclick="handleAction(${p.post_id}, 'down')" class="btn-vote btn-down">
-                            👎 <span id="down-count-${p.post_id}">${p.downvote || 0}</span>
+                            👎 <span id="down-count-${p.post_id}">${p.downvote}</span>
                         </button>
                         <button onclick="handleAction(${p.post_id}, 'report')" class="btn-report">
                             🚩 Report
@@ -121,6 +225,9 @@ $isAdmin = (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true);
             `).join('');
         }
 
+        // Listen for filter changes
+        document.getElementById('searchDivision').addEventListener('change', filterAndRender);
+
         function handleAction(postId, type) {
             fetch(POST_API + 'UpvoteOrDownvote', {
                 method: 'POST',
@@ -131,14 +238,16 @@ $isAdmin = (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true);
             .then(data => {
                 if(data.success) {
                     if(type === 'report') alert('Post reported.');
-                    else document.getElementById(`${type}-count-${postId}`).innerText = data.new_count;
+                    else {
+                        const countEl = document.getElementById(`${type}-count-${postId}`);
+                        if(countEl) countEl.innerText = data.new_count;
+                    }
                 } else {
                     alert(data.error || 'Failed to process request.');
                 }
             });
         }
 
-        // Only attach form listener if user is logged in
         const postForm = document.getElementById('postForm');
         if (postForm) {
             postForm.onsubmit = function(e) {
@@ -155,7 +264,7 @@ $isAdmin = (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true);
                     body: JSON.stringify(data)
                 }).then(() => {
                     postForm.reset();
-                    loadPosts();
+                    loadPosts(); // Reload all and re-render
                 });
             };
         }
@@ -165,6 +274,11 @@ $isAdmin = (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true);
             const div = document.createElement('div');
             div.textContent = str;
             return div.innerHTML;
+        }
+
+        function handleLogout() {
+            fetch('/citystatus/api/user/logout', { method: 'POST' })
+            .then(() => window.location.href = '/citystatus/index');
         }
 
         loadPosts();

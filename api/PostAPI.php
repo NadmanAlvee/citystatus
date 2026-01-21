@@ -39,7 +39,7 @@ class PostApiController {
                 $this->sendError("Invalid Post ID", 400);
             }
 
-            if (!in_array($type, ['up', 'down'])) {
+            if (!in_array($type, ['up', 'down', 'report'])) {
                 $this->sendError("Invalid vote type", 400);
             }
 

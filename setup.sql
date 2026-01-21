@@ -21,6 +21,8 @@ ALTER TABLE users
 ADD COLUMN security_q VARCHAR(100),
 ADD COLUMN security_a VARCHAR(100);
 
+--MEMBER password: 123456
+
 INSERT INTO users 
 (name, email, phone, password, sex, DOB, district, user_type, security_q, security_a)
 VALUES 
@@ -37,18 +39,16 @@ VALUES
     'tom'
 );
 
-
---MEMBER password: 123456
 INSERT INTO users 
 (name, email, phone, password, sex, DOB, district, security_q, security_a)
 VALUES 
 (
-    'Doe',
-    'doe@gmail.com',
-    '01333333334',
+    'nadman',
+    'nadman@gmail.com',
+    '01763914143',
     '$2y$10$PciWWkUZsCHG04P1K7sSB.r2.t1g44DkowD7Yv1UyB1dZQs/Ne1n.',
     'Male',
-    '2001-08-12',
+    '2004-07-31',
     'Dhaka',
     'In what city were you born?',
     'Dhaka'

@@ -139,6 +139,11 @@ function loadPosts() {
                     <p style="margin:5px 0">${escapeHtml(p.text)}</p>
                     <span class="small">${p.division} / ${p.city}</span>
                 </div>
+                <div class="post-meta" style="margin-right:20px;">
+                    <span>▲ ${p.upvote}</span>
+                    <span>▼ ${p.downvote}</span>
+                    <span>🚩 ${p.report_count}</span>
+                </div>
                 <button class="btn btn-danger" onclick="deletePost(${p.post_id})">Delete</button>
             </div>
         `).join('') || 'No posts found.';

@@ -30,6 +30,8 @@ $userPosts = $postModel->getUserPosts($_SESSION['user_id']);
     <style>
         :root { --bg: #f4f7fb; --card: #ffffff; --primary: #0078d4; --muted: #666; --border: #979797; --text: #222; }
         * { box-sizing: border-box; }
+        .btn { padding: 8px 14px;font-weight: 500; background: var(--primary); color: white; border-radius: 6px; border: none; cursor: pointer; }
+        .btn-danger { background: red; }
         nav { width: 250px; background: var(--card); border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; gap: 10px; min-height: 100vh; }
         nav h1 { font-size: 1.2rem; margin-bottom: 20px; color: var(--primary); text-align: center; }
         .nav-btn { padding: 12px; border: none; background: none; text-align: left; font-size: 15px; cursor: pointer; border-radius: 8px; color: var(--muted); transition: 0.2s; text-decoration: none; }
@@ -103,6 +105,7 @@ $userPosts = $postModel->getUserPosts($_SESSION['user_id']);
                                     <span>▼ <?php echo $post['downvote']; ?></span>
                                     <span>📅 <?php echo date('M d, Y', strtotime($post['created_at'])); ?></span>
                                 </div>
+                                <button class="btn btn-danger" onclick="deletePost(<?php echo $post['post_id']; ?>)">Delete</button>
                             </div>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -112,6 +115,27 @@ $userPosts = $postModel->getUserPosts($_SESSION['user_id']);
     </div>
 
     <script>
+        function ajax(method, url, data, callback) {
+            const xhr = new XMLHttpRequest();
+            xhr.open(method, url, true);
+            xhr.setRequestHeader('Accept', 'application/json');
+            if (method === 'POST') xhr.setRequestHeader('Content-Type', 'application/json');
+            
+            xhr.onload = function() {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    callback(JSON.parse(xhr.responseText));
+                } else {
+                    console.error('Request failed:', xhr.responseText);
+                }
+            };
+            xhr.send(data ? JSON.stringify(data) : null);
+        }
+        function deletePost(id) {
+            if (!confirm('Delete post ?')) return;
+            ajax('POST', '/citystatus/api/post/deletePost', {post_id: id}, function(res) {
+                if (res.success) location.reload();
+            });
+        }
         function showSection(sectionId, btn) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
