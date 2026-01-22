@@ -85,3 +85,16 @@ VALUES
     0
 );
 
+CREATE TABLE IF NOT EXISTS areas (
+    area_id INT AUTO_INCREMENT PRIMARY KEY,
+    division VARCHAR(100) NOT NULL,
+    city VARCHAR(100) DEFAULT NULL
+);
+
+
+INSERT INTO areas (division, city) VALUES
+('Dhaka', 'Gulshan'),
+('Dhaka', 'Dhanmondi'),
+('Chittagong', 'Pahartali'),
+('Khulna', 'Sonadanga'),
+('Rajshahi', 'Boalia');
