@@ -98,12 +98,12 @@ body { margin:0; font-family: 'Segoe UI', Arial, sans-serif; background:var(--bg
 
     <div class="header-right" style="display: flex; align-items: center; gap: 15px;">
         <a href="<?php echo $isLoggedIn ? '/citystatus/user-dashboard' : '/citystatus/login'; ?>" style="text-decoration: none; color: #666; font-size: 14px; font-weight: 500;">
-            Profile
+            User Profile
         </a>
 
         <?php if ($isAdmin): ?>
         <a href="/citystatus/admin-dashboard" style="text-decoration: none; color: #666; font-size: 14px; font-weight: 500;">
-            Admin
+            Admin Dashboard
         </a>
         <?php endif; ?>
 

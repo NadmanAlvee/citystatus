@@ -1,11 +1,11 @@
 <?php
 session_start();
+$isLoggedIn = isset($_SESSION['user_id']);
+$isAdmin = (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true);
 if (!isset($_SESSION['user_id'])) {
     header("Location: login");
     exit;
 }
-$isLoggedIn = isset($_SESSION['user_id']);
-$isAdmin = (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true);
 
 require_once 'models/User.php';
 require_once 'models/Post.php';
@@ -26,35 +26,46 @@ $userPosts = $postModel->getUserPosts($_SESSION['user_id']);
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>User Dashboard</title>
+    <title>User Dashboard | CityStatus</title>
     <style>
-        :root { --bg: #f4f7fb; --card: #ffffff; --primary: #0078d4; --muted: #666; --border: #979797; --text: #222; }
+        :root { --bg: #f4f7fb; --card: #ffffff; --primary: #0078d4; --muted: #666; --border: #e2e8f0; --text: #222; }
         * { box-sizing: border-box; }
-        .btn { padding: 8px 14px;font-weight: 500; background: var(--primary); color: white; border-radius: 6px; border: none; cursor: pointer; }
-        .btn-danger { background: red; }
-        nav { width: 250px; background: var(--card); border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; gap: 10px; min-height: 100vh; }
-        nav h1 { font-size: 1.2rem; margin-bottom: 20px; color: var(--primary); text-align: center; }
+        body { margin:0; font-family: 'Inter', system-ui, sans-serif; background:var(--bg); color: var(--text); }
+        
+        .btn { padding: 8px 14px; font-weight: 600; background: var(--primary); color: white; border-radius: 6px; border: none; cursor: pointer; transition: opacity 0.2s; }
+        .btn:hover { opacity: 0.9; }
+        .btn-danger { background: #d93025; margin-top: 10px; }
+        
+        nav { width: 260px; background: var(--card); border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; gap: 8px; min-height: 100vh; position: fixed; }
+        nav h1 { font-size: 1.2rem; margin-bottom: 20px; color: var(--primary); padding-left: 12px; }
+        
         .nav-btn { padding: 12px; border: none; background: none; text-align: left; font-size: 15px; cursor: pointer; border-radius: 8px; color: var(--muted); transition: 0.2s; text-decoration: none; }
         .nav-btn:hover { background: #f0f4f8; color: var(--primary); }
-        .nav-btn.active { background: var(--primary); color: #fff; }
-        main { flex: 1; padding: 40px; overflow-y: auto; }
+        .nav-btn.active { background: #e0effa; color: var(--primary); font-weight: 600; }
+        
+        main { margin-left: 260px; padding: 40px; width: calc(100% - 260px); }
         .section { display: none; max-width: 800px; margin: 0 auto; }
-        .section.active { display: block; }
-        .card { background: var(--card); padding: 24px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); }
+        .section.active { display: block; animation: fadeIn 0.3s ease; }
+        
+        .card { background: var(--card); padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); border: 1px solid var(--border); }
         .input-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 6px; font-size: 13px; color: #444; }
-        input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; }
-        button.save-btn { background: var(--primary); border: 0; padding: 10px 20px; border-radius: 8px; color: white; cursor: pointer; }
+        label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: #444; }
+        input { width: 100%; padding: 11px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; transition: border-color 0.2s; }
+        input:focus { outline: none; border-color: var(--primary); }
+        input:read-only { background: #f8fafc; color: #64748b; cursor: not-allowed; }
+        
         .post-card { background: var(--card); padding: 20px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 20px; }
-        .post-card p { color: #444; line-height: 1.5; margin-bottom: 15px; }
-        .post-meta { display: flex; gap: 20px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--border); padding-top: 12px; }
+        .post-card p { color: #334155; line-height: 1.6; margin-bottom: 15px; font-size: 15px; }
+        .post-meta { display: flex; gap: 20px; font-size: 12px; color: var(--muted); border-top: 1px solid #f1f5f9; padding-top: 15px; align-items: center; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body style="margin:0; font-family: Inter, sans-serif; background:var(--bg);">
+<body>
     
     <?php include 'views/header.php'; ?>
 
-    <div style="display: flex;">
+    <div style="display: flex; margin-top: 65px;">
         <nav>
             <h1>Dashboard</h1>
             <button class="nav-btn active" onclick="showSection('settings', this)">User Settings</button>
@@ -65,36 +76,43 @@ $userPosts = $postModel->getUserPosts($_SESSION['user_id']);
 
         <main>
             <div id="settings" class="section active">
-                <h2>Account Settings</h2>
+                <h2 style="margin-top:0">Account Settings</h2>
                 <div class="card">
-                    <form action="api/user/update" method="POST">
+                    <form id="updateProfileForm">
                         <div class="input-group">
                             <label>Full Name</label>
-                            <input type="text" name="name" value="<?php echo htmlspecialchars($userData['name']); ?>">
+                            <input type="text" id="update-name" name="name" value="<?php echo htmlspecialchars($userData['name']); ?>" required>
                         </div>
                         <div class="input-group">
                             <label>Email Address</label>
-                            <input type="email" name="email" value="<?php echo htmlspecialchars($userData['email']); ?>" readonly style="background: #f9f9f9;">
+                            <input type="email" value="<?php echo htmlspecialchars($userData['email']); ?>" readonly>
                         </div>
                         <div class="input-group">
                             <label>District</label>
-                            <input type="text" name="district" value="<?php echo htmlspecialchars($userData['district']); ?>">
+                            <input type="text" id="update-district" name="district" value="<?php echo htmlspecialchars($userData['district']); ?>">
                         </div>
-                        <hr style="margin: 20px 0; border: 0; border-top: 1px solid var(--border);">
+                        
+                        <hr style="margin: 25px 0; border: 0; border-top: 1px solid var(--border);">
+                        
                         <div class="input-group">
-                            <label>New Password (leave blank to keep current)</label>
-                            <input type="password" name="new_password">
+                            <label for="newPass">Change Password (Optional)</label>
+                            <input type="password" id="newPass" placeholder="Enter new password">
                         </div>
-                        <button type="submit" class="save-btn">Update Profile</button>
+                        <div class="input-group">
+                            <label for="confirmNewPass">Confirm New Password</label>
+                            <input type="password" id="confirmNewPass" placeholder="Repeat new password">
+                        </div>
+                        
+                        <button type="submit" class="btn" style="width:100%; padding: 12px; margin-top: 10px;">Update Profile</button>
                     </form>
                 </div>
             </div>
 
             <div id="posts" class="section">
-                <h2>Your Activity</h2>
+                <h2 style="margin-top:0">Your Activity</h2>
                 <div class="post-list">
                     <?php if (empty($userPosts)): ?>
-                        <p style="color: var(--muted);">You haven't posted anything yet.</p>
+                        <p style="color: var(--muted); text-align: center; padding: 40px;">You haven't posted anything yet.</p>
                     <?php else: ?>
                         <?php foreach($userPosts as $post): ?>
                             <div class="post-card">
@@ -105,7 +123,7 @@ $userPosts = $postModel->getUserPosts($_SESSION['user_id']);
                                     <span>▼ <?php echo $post['downvote']; ?></span>
                                     <span>📅 <?php echo date('M d, Y', strtotime($post['created_at'])); ?></span>
                                 </div>
-                                <button class="btn btn-danger" onclick="deletePost(<?php echo $post['post_id']; ?>)">Delete</button>
+                                <button class="btn btn-danger" onclick="deletePost(<?php echo $post['post_id']; ?>)">Delete Post</button>
                             </div>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -115,27 +133,79 @@ $userPosts = $postModel->getUserPosts($_SESSION['user_id']);
     </div>
 
     <script>
-        function ajax(method, url, data, callback) {
-            const xhr = new XMLHttpRequest();
-            xhr.open(method, url, true);
-            xhr.setRequestHeader('Accept', 'application/json');
-            if (method === 'POST') xhr.setRequestHeader('Content-Type', 'application/json');
-            
-            xhr.onload = function() {
-                if (xhr.status >= 200 && xhr.status < 300) {
-                    callback(JSON.parse(xhr.responseText));
-                } else {
-                    console.error('Request failed:', xhr.responseText);
+        // HANDLE PROFILE UPDATE (Works like Forgot Password)
+        const updateForm = document.getElementById('updateProfileForm');
+
+        updateForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('update-name').value.trim();
+            const district = document.getElementById('update-district').value.trim();
+            const newPassword = document.getElementById('newPass').value;
+            const confirmPassword = document.getElementById('confirmNewPass').value;
+
+            // Password matching validation
+            if (newPassword !== "" || confirmPassword !== "") {
+                if (newPassword !== confirmPassword) {
+                    alert("Passwords do not match!");
+                    return;
                 }
+            }
+
+            const payload = {
+                user_id: <?php echo $_SESSION['user_id']; ?>,
+                name: name,
+                district: district
             };
-            xhr.send(data ? JSON.stringify(data) : null);
+
+            if (newPassword) {
+                payload.password = newPassword;
+            }
+
+            try {
+                const response = await fetch('/citystatus/api/user/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('Profile updated successfully!');
+                    location.reload(); // Refresh to show new data
+                } else {
+                    alert('Error: ' + (result.error || 'Update failed'));
+                }
+            } catch (err) {
+                alert('An error occurred. Check console for details.');
+                console.error(err);
+            }
+        });
+
+        // HANDLE POST DELETION (Fetch Version)
+        async function deletePost(id) {
+            if (!confirm('Are you sure you want to delete this post?')) return;
+
+            try {
+                const response = await fetch('/citystatus/api/post/deletePost', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ post_id: id })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    location.reload();
+                } else {
+                    alert('Delete failed');
+                }
+            } catch (err) {
+                console.error(err);
+            }
         }
-        function deletePost(id) {
-            if (!confirm('Delete post ?')) return;
-            ajax('POST', '/citystatus/api/post/deletePost', {post_id: id}, function(res) {
-                if (res.success) location.reload();
-            });
-        }
+
+        // NAVIGATION LOGIC
         function showSection(sectionId, btn) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));

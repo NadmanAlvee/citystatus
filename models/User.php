@@ -9,7 +9,7 @@ class User {
     }
 
     public function getAll() {
-        $query = "SELECT user_id, name, email, user_type, acc_creation FROM users ORDER BY acc_creation DESC";
+        $query = "SELECT user_id, name, email, user_type, district, acc_creation FROM users ORDER BY acc_creation DESC";
         $result = $this->connection->query($query);
         return ($result) ? $result->fetch_all(MYSQLI_ASSOC) : [];
     }
