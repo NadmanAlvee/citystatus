@@ -43,27 +43,6 @@ class UserApiController {
         // Determine if admin is updating another user or user is updating themselves
         $isAdmin = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true;
         $targetUserId = isset($data['user_id']) ? intval($data['user_id']) : $_SESSION['user_id'];
-        
-        // Regular users can only update themselves
-        if (!$isAdmin && $targetUserId !== $_SESSION['user_id']) {
-            echo json_encode(['success' => false, 'error' => 'Unauthorized']);
-            return;
-        }
-
-        // Regular users cannot change email or user_type
-        if (!$isAdmin) {
-            unset($data['email']);
-            unset($data['user_type']);
-        }
-
-        // Validate required fields
-        $requiredFields = ['name', 'phone', 'sex', 'DOB', 'district'];
-        foreach ($requiredFields as $field) {
-            if (empty($data[$field])) {
-                echo json_encode(['success' => false, 'error' => ucfirst($field) . ' is required']);
-                return;
-            }
-        }
 
         // Update user profile
         if ($this->userModel->updateProfile($targetUserId, $data)) {
@@ -157,10 +136,6 @@ class UserApiController {
         echo json_encode(['success' => true]);
         exit;
     }
-<<<<<<< HEAD
-
-    
-=======
     public function forgotPassword() {
         header('Content-Type: application/json');
 
@@ -234,6 +209,5 @@ class UserApiController {
             echo json_encode(['success' => false, 'error' => $e->getMessage()]);
       }
     }
->>>>>>> f77d14e8004d437066ae4b798f794df90daf9f06
 }
 ?>

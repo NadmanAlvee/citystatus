@@ -31,8 +31,6 @@
                   if ($method === 'POST') $controller->logout();
                   else http_response_code(405);
                   break;
-<<<<<<< HEAD
-=======
               case 'forgotPassword':
                   if ($method === 'POST') $controller->forgotPassword();
                   else http_response_code(405);
@@ -41,10 +39,6 @@
                   if ($method === 'POST') $controller->resetPassword();
                   else http_response_code(405);
                   break;
-              case 'update':
-                  if ($method === 'POST') $controller->update();
-                  break;
->>>>>>> f77d14e8004d437066ae4b798f794df90daf9f06
               case 'getUsers':
                   if ($method === 'GET') $controller->getUsers();
                   break;

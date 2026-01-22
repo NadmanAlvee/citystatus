@@ -10,58 +10,58 @@ $isAdmin = (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true);
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CITYSTATUS | Admin Dashboard</title>
 <style>
-:root {
-    --bg: #f4f7fb;
-    --card: #ffffff;
-    --primary: #0078d4;
-    --muted: #666;
-    --border: #e2e8f0;
-    --text: #222;
-}
-body { margin:0; font-family: 'Segoe UI', Arial, sans-serif; background:var(--bg); color:var(--text); }
-* { box-sizing:border-box }
+  :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --primary: #0078d4;
+      --muted: #666;
+      --border: #e2e8f0;
+      --text: #222;
+  }
+  body { margin:0; font-family: 'Segoe UI', Arial, sans-serif; background:var(--bg); color:var(--text); }
+  * { box-sizing:border-box }
 
-.container { max-width: 900px; margin: 20px auto; padding: 0 15px; }
+  .container { max-width: 900px; margin: 20px auto; padding: 0 15px; }
 
-/* Header Styling */
-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 65px;
-    background: #ffffff;
-    border-bottom: 1px solid #e6e9ee;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 5%;
-    z-index: 1000;
-}
-.header-left a { font-weight: 800; font-size: 20px; color: #0078d4; text-decoration: none; }
-.header-right { display:flex; gap:15px; }
-.header-right a { text-decoration:none; color:#666; font-size:14px; font-weight:500; }
-.header-right a.logout { color:#d93025; }
+  /* Header Styling */
+  header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 65px;
+      background: #ffffff;
+      border-bottom: 1px solid #e6e9ee;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 5%;
+      z-index: 1000;
+  }
+  .header-left a { font-weight: 800; font-size: 20px; color: #0078d4; text-decoration: none; }
+  .header-right { display:flex; gap:15px; }
+  .header-right a { text-decoration:none; color:#666; font-size:14px; font-weight:500; }
+  .header-right a.logout { color:#d93025; }
 
-/* User Table Styling */
-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
-th { background: var(--card); color: var(--text); }
-tr:hover { background: #f1f3f4; cursor: pointer; }
+  /* User Table Styling */
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  th { background: var(--card); color: var(--text); }
+  tr:hover { background: #f1f3f4; cursor: pointer; }
 
-/* Modal Styling */
-.modal { display: none; position: fixed; z-index: 1001; left:0; top:0; width:100%; height:100%; overflow:auto; background-color: rgba(0,0,0,0.4); padding-top:60px; }
-.modal-content { background-color:#fff; margin:5% auto; padding:20px; border:1px solid var(--border); border-radius:8px; width:80%; max-width:400px; }
-.close { color:#aaa; float:right; font-size:28px; font-weight:bold; cursor:pointer; }
-.close:hover { color:black; }
+  /* Modal Styling */
+  .modal { display: none; position: fixed; z-index: 1001; left:0; top:0; width:100%; height:100%; overflow:auto; background-color: rgba(0,0,0,0.4); padding-top:60px; }
+  .modal-content { background-color:#fff; margin:5% auto; padding:20px; border:1px solid var(--border); border-radius:8px; width:80%; max-width:400px; }
+  .close { color:#aaa; float:right; font-size:28px; font-weight:bold; cursor:pointer; }
+  .close:hover { color:black; }
 
-/* Alerts */
-.alert { padding:15px; margin-bottom:20px; border:1px solid transparent; border-radius:4px; }
-.alert-success { color:#155724; background-color:#d4edda; border-color:#c3e6cb; }
-.alert-error { color:#721c24; background-color:#f8d7da; border-color:#f5c6cb; }
+  /* Alerts */
+  .alert { padding:15px; margin-bottom:20px; border:1px solid transparent; border-radius:4px; }
+  .alert-success { color:#155724; background-color:#d4edda; border-color:#c3e6cb; }
+  .alert-error { color:#721c24; background-color:#f8d7da; border-color:#f5c6cb; }
 
-input, select, button { margin-top: 10px; width: 100%; padding:8px; border:1px solid var(--border); border-radius:6px; }
-button { background: var(--primary); color: #fff; cursor: pointer; }
+  input, select, button { margin-top: 10px; width: 100%; padding:8px; border:1px solid var(--border); border-radius:6px; }
+  button { background: var(--primary); color: #fff; cursor: pointer; }
 </style>
 </head>
 <body>
