@@ -28,6 +28,14 @@
                   if ($method === 'POST') $controller->logout();
                   else http_response_code(405);
                   break;
+              case 'forgotPassword':
+                  if ($method === 'POST') $controller->forgotPassword();
+                  else http_response_code(405);
+                  break;
+              case 'resetPassword':
+                  if ($method === 'POST') $controller->resetPassword();
+                  else http_response_code(405);
+                  break;
               case 'update':
                   if ($method === 'POST') $controller->update();
                   break;

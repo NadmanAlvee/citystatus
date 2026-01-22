@@ -45,6 +45,14 @@ class User {
         return $stmt->get_result()->fetch_assoc();
     }
 
+    public function getUserByEmail($email) {
+        $query = "SELECT * FROM users WHERE email = ?";
+        $stmt = $this->connection->prepare($query);
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc();
+    }
+
     public function create($data)
     {
         $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
