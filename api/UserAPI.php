@@ -157,7 +157,83 @@ class UserApiController {
         echo json_encode(['success' => true]);
         exit;
     }
+<<<<<<< HEAD
 
     
+=======
+    public function forgotPassword() {
+        header('Content-Type: application/json');
+
+        try {
+            $data = json_decode(file_get_contents('php://input'), true);
+            
+            $email      = trim($data['email'] ?? '');
+            $security_q = $data['security_q'] ?? '';
+            $security_a = trim($data['security_a'] ?? '');
+
+            if (!$email || !$security_q || !$security_a) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'error' => 'All fields are required']);
+                return;
+            }
+
+            $user = $this->userModel->getUserByEmail($email);
+
+            if (!$user) {
+                http_response_code(404);
+                echo json_encode(['success' => false, 'error' => 'No account found with that email']);
+                return;
+            }
+
+            if ($user['security_q'] !== $security_q || 
+                strtolower($user['security_a']) !== strtolower($security_a)) {
+                
+                http_response_code(401);
+                echo json_encode(['success' => false, 'error' => 'Security answer is incorrect']);
+                return;
+            }
+
+            echo json_encode(['success' => true]);
+
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'error' => 'Server error: ' . $e->getMessage()]);
+        }
+    }
+    public function resetPassword() {
+      try {
+        $data = json_decode(file_get_contents('php://input'), true);
+        $email = $data['email'] ?? '';
+        $newPassword = $data['newPassword'] ?? '';
+
+        if (!$email || !$newPassword) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Email and new password are required']);
+            return;
+        }
+
+        $user = $this->userModel->getUserByEmail($email);
+
+        if (!$user) {
+            http_response_code(404);
+            echo json_encode(['error' => 'User not found']);
+            return;
+        }
+
+        $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+        $updateData = ['password' => $hashedPassword];
+
+        if ($this->userModel->updateProfile($user['user_id'], $updateData)) {
+            echo json_encode(['success' => true]);
+        } else {
+            http_response_code(500);
+            echo json_encode(['error' => 'Failed to update password']);
+        }
+      } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+      }
+    }
+>>>>>>> f77d14e8004d437066ae4b798f794df90daf9f06
 }
 ?>

@@ -1,79 +1,4 @@
-<?php
-/**
- * Forgot Password Handler - CityStatus
- * * Instructions: 
- * 1. Update $dsn, $dbUser, and $dbPass with your credentials.
- * 2. Ensure your 'users' table has 'reset_token' (VARCHAR) and 'reset_expires' (DATETIME).
- */
-
-session_start();
-
-// --- Configuration ---
-$dsn      = 'mysql:host=localhost;dbname=your_db;charset=utf8mb4';
-$dbUser   = 'db_user';
-$dbPass   = 'db_pass';
-$baseUrl  = 'http://localhost:80/citystatus';
-
-// --- Initialization ---
-$pdo      = null;
-$msg      = '';
-$msg_type = '';
-
-try {
-    $pdo = new PDO($dsn, $dbUser, $dbPass, [
-        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES   => false,
-    ]);
-} catch (Exception $e) {
-    // Silently fail to "Preview Mode" for safety
-    $pdo = null;
-}
-
-// --- Logic ---
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = filter_var($_POST['email'] ?? '', FILTER_VALIDATE_EMAIL);
-
-    if (!$email) {
-        $msg      = 'Please enter a valid email address.';
-        $msg_type = 'error';
-    } else {
-        if ($pdo === null) {
-            $msg      = 'System in Preview Mode: Reset link generated but not sent.';
-            $msg_type = 'success';
-        } else {
-            // Check if user exists
-            $stmt = $pdo->prepare('SELECT id FROM users WHERE email = ? LIMIT 1');
-            $stmt->execute([$email]);
-            $user = $stmt->fetch();
-
-            if ($user) {
-                $token   = bin2hex(random_bytes(32));
-                $expires = date('Y-m-d H:i:s', time() + 3600);
-
-                $update = $pdo->prepare('UPDATE users SET reset_token = ?, reset_expires = ? WHERE id = ?');
-                $update->execute([$token, $expires, $user['id']]);
-
-                $resetLink = $baseUrl . '/reset_password.php?token=' . $token;
-                
-                // Email components
-                $subject = 'Password Reset Request';
-                $headers = "From: no-reply@example.com\r\n" .
-                           "Reply-To: no-reply@example.com\r\n" .
-                           "Content-Type: text/plain; charset=UTF-8";
-                $body    = "Hello,\n\nTo reset your password, please click the link below:\n" . 
-                           $resetLink . "\n\nThis link will expire in 1 hour.";
-
-                @mail($email, $subject, $body, $headers);
-            }
-
-            // Always show the same message to prevent "User Enumeration"
-            $msg      = 'If that email is in our system, you will receive a reset link shortly.';
-            $msg_type = 'success';
-        }
-    }
-}
-?>
+<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -135,26 +60,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border: 1px solid transparent;
         }
 
-        .msg.success { background: var(--success-bg); color: var(--success-text); border-color: #dcfce7; }
-        .msg.error { background: var(--error-bg); color: var(--error-text); border-color: #fee2e2; }
+        .msg.success {
+            background: var(--success-bg);
+            color: var(--success-text);
+            border-color: #dcfce7;
+        }
+
+        .msg.error {
+            background: var(--error-bg);
+            color: var(--error-text);
+            border-color: #fee2e2;
+        }
 
         label {
             display: block;
             font-size: 0.875rem;
             font-weight: 600;
+            margin-top: 1rem;
             margin-bottom: 0.5rem;
         }
 
-        .input {
+        .input,
+        select {
             width: 100%;
             padding: 0.75rem;
             border: 1px solid #cbd5e1;
             border-radius: 6px;
             box-sizing: border-box;
             transition: border-color 0.2s, box-shadow 0.2s;
+            background: white;
         }
 
-        .input:focus {
+        .input:focus,
+        select:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
@@ -169,11 +107,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-radius: 6px;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 1.25rem;
+            margin-top: 1.5rem;
             transition: background 0.2s;
         }
 
-        .btn:hover { background: var(--primary-hover); }
+        .btn:hover {
+            background: var(--primary-hover);
+        }
 
         .footer-links {
             margin-top: 1.5rem;
@@ -187,42 +127,113 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-weight: 500;
         }
 
-        .link:hover { text-decoration: underline; }
+        .link:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
+    <div class="auth-card" role="main">
+        <h1>Forgot password?</h1>
+        <p class="lead">No worries! Enter your details below.</p>
 
-<div class="auth-card" role="main">
-    <h1>Forgot password?</h1>
-    <p class="lead">No worries! Enter your email below and we'll send you reset instructions.</p>
+        <?php if (isset($msg)): ?>
+            <div class="msg <?php echo $msg_type; ?>">
+                <?php echo htmlspecialchars($msg); ?>
+            </div>
+        <?php endif; ?>
 
-    <?php if ($msg): ?>
-        <div class="msg <?php echo $msg_type; ?>">
-            <?php echo htmlspecialchars($msg); ?>
+        <form id="forgotPasswordForm">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input id="email" class="input" type="email" name="email" placeholder="name@company.com" required autofocus>
+
+                <label for="security_q">Security Question</label>
+                <select id="security_q" class="input" required>
+                    <option value="">--Select a Question--</option>
+                    <option value="What was the name of your first pet?">First pet name?</option>
+                    <option value="In what city were you born?">Birth city?</option>
+                    <option value="What was your first car?">First car?</option>
+                </select>
+
+                <label for="security_a">Your Answer</label>
+                <input type="text" id="security_a" class="input" required>
+            </div>
+            <button class="btn" type="submit">Verify Identity</button>
+        </form>
+
+        <form id="newPassForm" style="display:none;">
+            <label for="newPass">Enter New Password</label>
+            <input type="password" id="newPass" class="input" required>
+
+            <label for="confirmNewPass">Confirm New Password</label>
+            <input type="password" id="confirmNewPass" class="input" required>
+
+            <button class="btn" type="submit">Update Password</button>
+        </form>
+
+        <div class="footer-links">
+            <a class="link" href="login">← Back to login</a>
         </div>
-    <?php endif; ?>
-
-    <form method="POST" action="">
-        <div class="form-group">
-            <label for="email">Email Address</label>
-            <input 
-                id="email" 
-                class="input" 
-                type="email" 
-                name="email" 
-                placeholder="name@company.com" 
-                required 
-                autofocus
-            >
-        </div>
-        
-        <button class="btn" type="submit">Send Reset Link</button>
-    </form>
-
-    <div class="footer-links">
-        <a class="link" href="<?php echo $baseUrl; ?>/login">← Back to login</a>
     </div>
-</div>
 
+    <script>
+        const forgotForm = document.getElementById('forgotPasswordForm');
+        const newPassForm = document.getElementById('newPassForm');
+
+        forgotForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const security_q = document.getElementById('security_q').value;
+            const security_a = document.getElementById('security_a').value;
+
+            try {
+                const response = await fetch('/citystatus/api/user/forgotPassword', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, security_q, security_a })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    forgotForm.style.display = 'none';
+                    newPassForm.style.display = 'block';
+                    
+                    newPassForm.onsubmit = async function(e) {
+                        e.preventDefault();
+                        const newPassword = document.getElementById('newPass').value;
+                        const confirmPassword = document.getElementById('confirmNewPass').value;
+
+                        if (newPassword !== confirmPassword) {
+                            alert('Passwords do not match!');
+                            return;
+                        }
+
+                        const resetResponse = await fetch('/citystatus/api/user/resetPassword', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email, newPassword })
+                        });
+
+                        const resetResult = await resetResponse.json();
+
+                        if (resetResult.success) {
+                            alert('Password updated successfully!');
+                            window.location.href = 'login';
+                        } else {
+                            alert('Password reset failed: ' + resetResult.error);
+                        }
+                    };
+                } else {
+                    alert('Error: ' + (result.error || 'Verification failed'));
+                }
+            } catch (err) {
+                alert('An error occurred. Please try again later.');
+                console.error(JSON.stringify(err));
+            }
+        });
+    </script>
 </body>
 </html>
