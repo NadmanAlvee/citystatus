@@ -92,20 +92,20 @@ class User {
         return false;
     }
 
-    public function validate($data)
-    {
-        $errors = [];
-        if (empty($data['name']) || strlen(trim($data['name'])) < 2) {
-            $errors['name'] = 'Name must be at least 2 characters long';
-        }
-        if (empty($data['email']) || !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-            $errors['email'] = 'Please enter a valid email address';
-        }
-        if (empty($data['password']) || strlen($data['password']) < 6) {
-            $errors['password'] = 'Password must be at least 6 characters';
-        }
-        return $errors;
-    }
+    // public function validate($data)
+    // {
+    //     $errors = [];
+    //     if (empty($data['name']) || strlen(trim($data['name'])) < 2) {
+    //         $errors['name'] = 'Name must be at least 2 characters long';
+    //     }
+    //     if (empty($data['email']) || !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+    //         $errors['email'] = 'Please enter a valid email address';
+    //     }
+    //     if (empty($data['password']) || strlen($data['password']) < 6) {
+    //         $errors['password'] = 'Password must be at least 6 characters';
+    //     }
+    //     return $errors;
+    // }
 
 
     public function emailExists($email, $excludeId = null)
