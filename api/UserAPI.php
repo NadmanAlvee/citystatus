@@ -30,42 +30,46 @@ class UserApiController {
     }
 
     public function update() {
-        if (session_status() === PHP_SESSION_NONE) session_start();
+        session_start();
         
         // Check if user is logged in
         if (!isset($_SESSION['user_id'])) {
-            http_response_code(401);
-            echo json_encode(['error' => 'Unauthorized']);
+            echo json_encode(['success' => false, 'error' => 'Not authenticated']);
             return;
         }
 
-        // Since your dashboard form uses standard POST, use $_POST
-        $userId = $_SESSION['user_id'];
-        $name = $_POST['name'] ?? '';
-        $district = $_POST['district'] ?? '';
-        $oldPassword = $_POST['old_password'] ?? '';
-        $newPassword = $_POST['new_password'] ?? '';
-
-        // 1. Verify the current password first for security
-        $user = $this->userModel->getUserById($userId); // Need this method in Model
+        $data = json_decode(file_get_contents('php://input'), true);
         
-        if (!password_verify($oldPassword, $user['password'])) {
-            header("Location: ../../dashboard?error=Incorrect current password");
-            exit;
+        // Determine if admin is updating another user or user is updating themselves
+        $isAdmin = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true;
+        $targetUserId = isset($data['user_id']) ? intval($data['user_id']) : $_SESSION['user_id'];
+        
+        // Regular users can only update themselves
+        if (!$isAdmin && $targetUserId !== $_SESSION['user_id']) {
+            echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+            return;
         }
 
-        // 2. Prepare data for update
-        $updateData = [
-            'name' => $name,
-            'district' => $district,
-            'password' => !empty($newPassword) ? password_hash($newPassword, PASSWORD_DEFAULT) : null
-        ];
+        // Regular users cannot change email or user_type
+        if (!$isAdmin) {
+            unset($data['email']);
+            unset($data['user_type']);
+        }
 
-        if ($this->userModel->updateProfile($userId, $updateData)) {
-            $_SESSION['user_name'] = $name; // Update session name
-            header("Location: ../../dashboard?success=Profile updated");
+        // Validate required fields
+        $requiredFields = ['name', 'phone', 'sex', 'DOB', 'district'];
+        foreach ($requiredFields as $field) {
+            if (empty($data[$field])) {
+                echo json_encode(['success' => false, 'error' => ucfirst($field) . ' is required']);
+                return;
+            }
+        }
+
+        // Update user profile
+        if ($this->userModel->updateProfile($targetUserId, $data)) {
+            echo json_encode(['success' => true, 'message' => 'Profile updated successfully']);
         } else {
-            header("Location: ../../dashboard?error=Update failed");
+            echo json_encode(['success' => false, 'error' => 'Failed to update profile']);
         }
     }
 
@@ -153,5 +157,7 @@ class UserApiController {
         echo json_encode(['success' => true]);
         exit;
     }
+
+    
 }
 ?>

@@ -115,5 +115,19 @@ class PostApiController {
             $this->sendError($e->getMessage());
         }
     }
+
+     public function deleteArea() {
+        try {
+            $data = json_decode(file_get_contents('php://input'), true);
+            $areaId = intval($data['area_id'] ?? 0);
+
+            if ($areaId <= 0) $this->sendError("Invalid Area ID", 400);
+
+            $result = $this->postModel->deleteArea($areaId);
+            echo json_encode($result);
+        } catch (Exception $e) {
+            $this->sendError($e->getMessage());
+        }
+    }
 }
 ?>

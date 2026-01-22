@@ -76,5 +76,14 @@ class Post {
             'id' => $stmt->insert_id
         ];
     }
+
+       public function deleteArea($areaId) {
+        $stmt = $this->connection->prepare("DELETE FROM areas WHERE area_id = ?");
+        $stmt->bind_param("i", $areaId);
+        $stmt->execute();
+        return [
+            'success' => $stmt->affected_rows > 0
+        ];
+    }
 }
 ?>

@@ -16,6 +16,9 @@ class UserController
 	public function adminDashboard(){
 		$this->loadView('Dashboards/AdminDashboard');
 	}
+	public function manageUsers(){
+		$this->loadView('/ManageUsers');
+	}
 	public function userDashboard(){
 		$this->loadView('Dashboards/UserDashboard');
 	}

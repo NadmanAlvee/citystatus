@@ -24,12 +24,12 @@
                   if ($method === 'POST') $controller->signup();
                   else http_response_code(405);
                   break;
+              case 'update':
+                  if ($method === 'POST') $controller->update();
+                  break;
               case 'logout':
                   if ($method === 'POST') $controller->logout();
                   else http_response_code(405);
-                  break;
-              case 'update':
-                  if ($method === 'POST') $controller->update();
                   break;
               case 'getUsers':
                   if ($method === 'GET') $controller->getUsers();
@@ -45,35 +45,39 @@
       }
 
       // --- POST/AREA API ---
-      if ($resource === 'post') {
-          require_once 'api/PostAPI.php';
-          $controller = new PostApiController();
+if ($resource === 'post') {
+    require_once 'api/PostAPI.php';
+    $controller = new PostApiController();
 
-          switch ($action) {
-              case 'getPosts':
-                  $controller->getPosts();
-                  break;
-              case 'UpvoteOrDownvote':
-                  $controller->UpvoteOrDownvote();
-                  break;
-              case 'addPost':
-                  $controller->addPost();
-                  break;
-              case 'deletePost':
-                  if ($method === 'POST') $controller->deletePost();
-                  break;
-              case 'getAreas':
-                  $controller->getAreas();
-                  break;
-              case 'addArea':
-                  if ($method === 'POST') $controller->addArea();
-                  break;
-              default:
-                  http_response_code(404);
-                  echo json_encode(['error' => 'Post endpoint not found']);
-          }
-          exit;
-      }
+    switch ($action) {
+        case 'getPosts':
+            $controller->getPosts();
+            break;
+        case 'UpvoteOrDownvote':
+            $controller->UpvoteOrDownvote();
+            break;
+        case 'addPost':
+            $controller->addPost();
+            break;
+        case 'deletePost':
+            if ($method === 'POST') $controller->deletePost();
+            break;
+        case 'getAreas':
+            $controller->getAreas();
+            break;
+        case 'addArea':
+            if ($method === 'POST') $controller->addArea();
+            break;
+        case 'deleteArea':   // <-- added this
+            if ($method === 'POST') $controller->deleteArea();
+            break;
+        default:
+            http_response_code(404);
+            echo json_encode(['error' => 'Post endpoint not found']);
+    }
+    exit;
+}
+
   }
 
   // Get path and remove base path
@@ -96,6 +100,9 @@
 		$userController->adminDashboard();
 	} elseif ($action === 'user-dashboard') {
 		$userController->userDashboard();
+	}
+     elseif ($action === 'manage-users') {
+		$userController->manageUsers();
 	} else {
 		http_response_code(404);
 		include 'views/errors/NotFoundPage.php';

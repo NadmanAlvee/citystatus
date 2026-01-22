@@ -21,21 +21,7 @@ class User {
         return $stmt->affected_rows > 0;
     }
 
-    public function updateProfile($id, $data) {
-        if ($data['password']) {
-            // If password is being changed
-            $query = "UPDATE users SET name = ?, district = ?, password = ? WHERE user_id = ?";
-            $stmt = $this->connection->prepare($query);
-            $stmt->bind_param("sssi", $data['name'], $data['district'], $data['password'], $id);
-        } else {
-            // Only update name and district
-            $query = "UPDATE users SET name = ?, district = ? WHERE user_id = ?";
-            $stmt = $this->connection->prepare($query);
-            $stmt->bind_param("ssi", $data['name'], $data['district'], $id);
-        }
-
-        return $stmt->execute();
-    }
+   
 
     public function getUserById($id) {
         $query = "SELECT * FROM users WHERE user_id = ?";
@@ -113,6 +99,7 @@ class User {
         return $errors;
     }
 
+
     public function emailExists($email, $excludeId = null)
     {
         $query = "SELECT user_id FROM users WHERE email = ?";
@@ -127,6 +114,60 @@ class User {
 
         $stmt->execute();
         return $stmt->get_result()->num_rows > 0;
+    }
+
+
+    public function updateProfile($id, $data){
+        // Build dynamic query based on what fields are provided
+        $fields = [];
+        $params = [];
+        $types = "";
+
+        if (isset($data['name'])) {
+            $fields[] = "name=?";
+            $params[] = $data['name'];
+            $types .= "s";
+        }
+        if (isset($data['phone'])) {
+            $fields[] = "phone=?";
+            $params[] = $data['phone'];
+            $types .= "s";
+        }
+        if (isset($data['sex'])) {
+            $fields[] = "sex=?";
+            $params[] = $data['sex'];
+            $types .= "s";
+        }
+        if (isset($data['DOB'])) {
+            $fields[] = "DOB=?";
+            $params[] = $data['DOB'];
+            $types .= "s";
+        }
+        if (isset($data['district'])) {
+            $fields[] = "district=?";
+            $params[] = $data['district'];
+            $types .= "s";
+        }
+        if (isset($data['user_type'])) {
+            $fields[] = "user_type=?";
+            $params[] = $data['user_type'];
+            $types .= "s";
+        }
+        if (!empty($data['password'])) {
+            $fields[] = "password=?";
+            $params[] = password_hash($data['password'], PASSWORD_DEFAULT);
+            $types .= "s";
+        }
+
+        if (empty($fields)) return false;
+
+        $query = "UPDATE users SET " . implode(", ", $fields) . " WHERE user_id=?";
+        $params[] = $id;
+        $types .= "i";
+
+        $stmt = $this->connection->prepare($query);
+        $stmt->bind_param($types, ...$params);
+        return $stmt->execute();
     }
 }
 ?>

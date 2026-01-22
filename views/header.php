@@ -19,7 +19,8 @@
 
         <?php if ($isLoggedIn): ?>
             <button onclick="handleLogout()" class="btn-logout" 
-                style="padding: 7px 15px; color: #d93025; border: none; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500; cursor: pointer; background: #fff2f2; hover: background: #ffc8c8;">
+                style="padding: 7px 15px; color: #d93025; border: none; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500; cursor: pointer; background: #fff2f2;"
+                onmouseover="this.style.background='#ffc8c8';" onmouseout="this.style.background='#fff2f2';">
                 Logout
             </button>
         <?php else: ?>
